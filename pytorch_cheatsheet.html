@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PyTorch Tensor 常用方法速查表</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-secondary: #f6f6f4;
+    --bg-tertiary: #f0ede8;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --text-tertiary: #9b9b9b;
+    --border: rgba(0,0,0,0.10);
+    --border-md: rgba(0,0,0,0.18);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    --sans: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1e;
+      --bg-secondary: #2c2c2e;
+      --bg-tertiary: #3a3a3c;
+      --text-primary: #f2f2f7;
+      --text-secondary: #aeaeb2;
+      --text-tertiary: #636366;
+      --border: rgba(255,255,255,0.10);
+      --border-md: rgba(255,255,255,0.18);
+    }
+    .b-create{background:#0c2d4a!important;color:#7dc4f7!important}
+    .b-shape{background:#1a2e0d!important;color:#8fcc45!important}
+    .b-math{background:#1e1a3f!important;color:#b8b0f5!important}
+    .b-stat{background:#3a2500!important;color:#f5b942!important}
+    .b-index{background:#3a1200!important;color:#f5834a!important}
+    .b-type{background:#0a2a1e!important;color:#4fd4a0!important}
+    .b-linalg{background:#2e0a1e!important;color:#f59bbf!important}
+    .b-grad{background:#252520!important;color:#b0b0a8!important}
+    .b-random{background:#2e0a0a!important;color:#f58080!important}
+    mark{background:#5a4a00!important;color:#ffd966!important}
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+  .page {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  header {
+    margin-bottom: 1.75rem;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+  .search-row {
+    position: relative;
+  }
+  .search-row svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+    pointer-events: none;
+    width: 16px; height: 16px;
+  }
+  #search {
+    width: 100%;
+    padding: 10px 14px 10px 38px;
+    font-size: 14px;
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text-primary);
+    border: 0.5px solid var(--border-md);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  #search:focus {
+    border-color: #378ADD;
+    box-shadow: 0 0 0 3px rgba(55,138,221,0.15);
+  }
+  .chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    padding: 5px 13px;
+    border-radius: 20px;
+    border: 0.5px solid var(--border-md);
+    background: var(--bg);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: all .12s;
+    white-space: nowrap;
+  }
+  .chip svg { width: 13px; height: 13px; }
+  .chip:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .chip.active {
+    background: var(--text-primary);
+    color: var(--bg);
+    border-color: var(--text-primary);
+  }
+  .meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .legend-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .count-pill {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    background: var(--bg-secondary);
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 0.5px solid var(--border);
+  }
+  .table-wrap {
+    width: 100%;
+    border: 0.5px solid var(--border-md);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--bg);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  col.c-fn  { width: 17%; }
+  col.c-cat { width: 9%; }
+  col.c-sig { width: 30%; }
+  col.c-desc{ width: 44%; }
+  thead tr {
+    background: var(--bg-secondary);
+    border-bottom: 0.5px solid var(--border-md);
+  }
+  thead th {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    text-align: left;
+  }
+  .group-hdr td {
+    background: var(--bg-secondary);
+    border-bottom: 0.5px solid var(--border);
+    padding: 7px 14px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: .05em;
+    text-transform: uppercase;
+  }
+  .group-hdr td span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .group-hdr svg { width: 13px; height: 13px; }
+  tbody tr.data-row {
+    border-bottom: 0.5px solid var(--border);
+    transition: background .1s;
+  }
+  tbody tr.data-row:last-child { border-bottom: none; }
+  tbody tr.data-row:hover { background: var(--bg-secondary); }
+  td { padding: 10px 14px; vertical-align: top; overflow: hidden; }
+  .fn-name {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    word-break: break-all;
+    line-height: 1.5;
+  }
+  .sig-text {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    word-break: break-all;
+    margin-top: 4px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge svg { width: 11px; height: 11px; }
+  .b-create { background: #E6F1FB; color: #0C447C; }
+  .b-shape  { background: #EAF3DE; color: #27500A; }
+  .b-math   { background: #EEEDFE; color: #3C3489; }
+  .b-stat   { background: #FAEEDA; color: #633806; }
+  .b-index  { background: #FAECE7; color: #712B13; }
+  .b-type   { background: #E1F5EE; color: #085041; }
+  .b-linalg { background: #FBEAF0; color: #72243E; }
+  .b-grad   { background: #F1EFE8; color: #444441; }
+  .b-random { background: #FCEBEB; color: #791F1F; }
+  .desc-text {
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.6;
+  }
+  .scene-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-top: 5px;
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  .scene-text svg { width: 12px; height: 12px; flex-shrink: 0; margin-top: 2px; }
+  .empty {
+    text-align: center;
+    padding: 4rem;
+    color: var(--text-tertiary);
+    font-size: 14px;
+  }
+  mark {
+    background: #FDE68A;
+    color: #633806;
+    border-radius: 2px;
+    padding: 0 2px;
+  }
+  @media (max-width: 768px) {
+    col.c-fn  { width: 30%; }
+    col.c-cat { width: 0; display: none; }
+    col.c-sig { width: 0; display: none; }
+    col.c-desc{ width: 70%; }
+    .hide-mobile { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>PyTorch Tensor 常用方法速查表</h1>
+    <p class="subtitle">170+ 个方法 · 9 大分类 · 支持搜索与筛选</p>
+  </header>
+ 
+  <div class="toolbar">
+    <div class="search-row">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="search" placeholder="搜索方法名、描述或使用场景…" />
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+ 
+  <div class="meta">
+    <div class="legend" id="legend"></div>
+    <div class="count-pill" id="count"></div>
+  </div>
+ 
+  <div class="table-wrap">
+    <table>
+      <colgroup><col class="c-fn"><col class="c-cat"><col class="c-sig"><col class="c-desc"></colgroup>
+      <thead>
+        <tr>
+          <th>方法名</th>
+          <th class="hide-mobile">分类</th>
+          <th class="hide-mobile">格式 / 主要参数</th>
+          <th>说明 &amp; 使用场景</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+ 
+<script>
+const ICON = {
+  search:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>`,
+  list:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`,
+  plus:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  resize:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>`,
+  math:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg>`,
+  chart:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="13" width="4" height="8"/><rect x="10" y="9" width="4" height="12"/><rect x="17" y="5" width="4" height="16"/></svg>`,
+  cut:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>`,
+  transfer: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>`,
+  calc:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="12" x2="8" y2="12"/><line x1="12" y1="12" x2="12" y2="12"/><line x1="16" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="12" y1="16" x2="12" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>`,
+  grad:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>`,
+  dice:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="4"/><circle cx="8" cy="8" r="1" fill="currentColor"/><circle cx="16" cy="8" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="8" cy="16" r="1" fill="currentColor"/><circle cx="16" cy="16" r="1" fill="currentColor"/></svg>`,
+  bulb:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>`,
+  sad:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`,
+};
+ 
+const CATS = {
+  create: { label:"创建",      icon:"plus",     cls:"b-create", dot:"#378ADD" },
+  shape:  { label:"形状变换",  icon:"resize",   cls:"b-shape",  dot:"#639922" },
+  math:   { label:"数学运算",  icon:"math",     cls:"b-math",   dot:"#7F77DD" },
+  stat:   { label:"统计聚合",  icon:"chart",    cls:"b-stat",   dot:"#BA7517" },
+  index:  { label:"索引切片",  icon:"cut",      cls:"b-index",  dot:"#D85A30" },
+  type:   { label:"类型转换",  icon:"transfer", cls:"b-type",   dot:"#1D9E75" },
+  linalg: { label:"线性代数",  icon:"calc",     cls:"b-linalg", dot:"#D4537E" },
+  grad:   { label:"自动微分",  icon:"grad",     cls:"b-grad",   dot:"#888780" },
+  random: { label:"随机采样",  icon:"dice",     cls:"b-random", dot:"#E24B4A" },
+};
+ 
+const DATA = [
+  // 创建
+  {fn:"torch.tensor()",cat:"create",sig:"torch.tensor(data, dtype=None, device=None, requires_grad=False)",desc:"从 Python list / numpy array 直接创建张量",scene:"最常用的手动创建方式，调试时构造小数据"},
+  {fn:"torch.zeros()",cat:"create",sig:"torch.zeros(*size, dtype=None, device=None)",desc:"创建全 0 张量",scene:"初始化权重、mask、累加器"},
+  {fn:"torch.ones()",cat:"create",sig:"torch.ones(*size, dtype=None, device=None)",desc:"创建全 1 张量",scene:"偏置初始化、生成全 1 掩码"},
+  {fn:"torch.full()",cat:"create",sig:"torch.full(size, fill_value, dtype=None, device=None)",desc:"创建填充指定值的张量",scene:"初始化为特定常数，如 padding 填充值"},
+  {fn:"torch.zeros_like()",cat:"create",sig:"torch.zeros_like(input, dtype=None, device=None)",desc:"创建与 input 形状和 dtype 相同的全 0 张量",scene:"梯度归零、结果占位"},
+  {fn:"torch.ones_like()",cat:"create",sig:"torch.ones_like(input, dtype=None, device=None)",desc:"创建与 input 形状和 dtype 相同的全 1 张量",scene:"快速生成同形状掩码"},
+  {fn:"torch.full_like()",cat:"create",sig:"torch.full_like(input, fill_value, dtype=None)",desc:"创建与 input 形状相同并填充指定值的张量",scene:"批量初始化同形状张量"},
+  {fn:"torch.empty()",cat:"create",sig:"torch.empty(*size, dtype=None, device=None)",desc:"分配未初始化内存，速度最快但值随机",scene:"性能敏感场景，确保后续会覆盖所有值"},
+  {fn:"torch.empty_like()",cat:"create",sig:"torch.empty_like(input)",desc:"创建与 input 形状相同的未初始化张量",scene:"需要快速分配同形缓冲区时"},
+  {fn:"torch.arange()",cat:"create",sig:"torch.arange(start=0, end, step=1, dtype=None)",desc:"生成等差序列（不含 end）",scene:"生成位置索引、时间步序列"},
+  {fn:"torch.linspace()",cat:"create",sig:"torch.linspace(start, end, steps, dtype=None)",desc:"在 [start, end] 之间生成 steps 个等间隔点（含两端）",scene:"绘图 x 轴、插值采样点"},
+  {fn:"torch.logspace()",cat:"create",sig:"torch.logspace(start, end, steps, base=10.0)",desc:"在对数尺度上生成等间隔点",scene:"学习率 warmup、频率坐标轴"},
+  {fn:"torch.eye()",cat:"create",sig:"torch.eye(n, m=None, dtype=None, device=None)",desc:"生成单位矩阵（对角线为 1）",scene:"矩阵运算、注意力掩码、残差初始化"},
+  {fn:"torch.from_numpy()",cat:"create",sig:"torch.from_numpy(ndarray)",desc:"从 NumPy 数组创建张量（共享内存，零拷贝）",scene:"与 NumPy / OpenCV 生态互操作"},
+  {fn:"torch.as_tensor()",cat:"create",sig:"torch.as_tensor(data, dtype=None, device=None)",desc:"将数据转换为张量，尽量避免复制（共享内存）",scene:"比 torch.tensor() 更高效的转换方式"},
+  {fn:"torch.frombuffer()",cat:"create",sig:"torch.frombuffer(buffer, dtype, count=-1, offset=0)",desc:"从实现了 buffer 协议的对象（如 bytes）创建张量",scene:"读取二进制数据流、自定义文件格式解析"},
+  {fn:"torch.sparse_coo_tensor()",cat:"create",sig:"torch.sparse_coo_tensor(indices, values, size)",desc:"创建 COO 格式稀疏张量",scene:"图神经网络邻接矩阵、大规模稀疏特征"},
+  {fn:"torch.block_diag()",cat:"create",sig:"torch.block_diag(*tensors)",desc:"从多个张量构造块对角矩阵",scene:"多任务学习中合并独立块矩阵"},
+  {fn:"torch.diag()",cat:"create",sig:"torch.diag(input, diagonal=0)",desc:"提取对角线元素或以向量构造对角矩阵",scene:"提取特征值、构造正则化矩阵"},
+  // 形状
+  {fn:".view()",cat:"shape",sig:"t.view(*shape)",desc:"改变形状（要求内存连续）",scene:"Flatten 后接全连接层，或调整 batch 维度"},
+  {fn:".reshape()",cat:"shape",sig:"t.reshape(*shape)",desc:"改变形状，自动处理不连续内存（可能复制数据）",scene:"比 view 更安全的替代方案"},
+  {fn:".squeeze()",cat:"shape",sig:"t.squeeze(dim=None)",desc:"删除所有（或指定）大小为 1 的维度",scene:"去除多余的 batch / channel 维度"},
+  {fn:".unsqueeze()",cat:"shape",sig:"t.unsqueeze(dim)",desc:"在指定位置插入大小为 1 的新维度",scene:"广播前对齐维度，如 (N,) → (N,1)"},
+  {fn:".permute()",cat:"shape",sig:"t.permute(*dims)",desc:"按指定顺序重排所有维度",scene:"图像 (H,W,C) ↔ (C,H,W) 格式转换"},
+  {fn:".transpose()",cat:"shape",sig:"t.transpose(dim0, dim1)",desc:"交换两个维度（view，共享数据）",scene:"转置矩阵、调整注意力头维度"},
+  {fn:".t()",cat:"shape",sig:"t.t()",desc:"二维矩阵转置快捷方式，等价于 .transpose(0,1)",scene:"快速转置权重矩阵"},
+  {fn:".flatten()",cat:"shape",sig:"t.flatten(start_dim=0, end_dim=-1)",desc:"将指定范围内的维度展平为一维",scene:"CNN → 全连接前的展平操作"},
+  {fn:".unflatten()",cat:"shape",sig:"t.unflatten(dim, sizes)",desc:"将指定维度拆分为多个维度",scene:"flatten 的逆操作，恢复空间维度"},
+  {fn:"torch.cat()",cat:"shape",sig:"torch.cat(tensors, dim=0, *, out=None)",desc:"沿已有维度拼接多个张量（不增加新维度）",scene:"合并 batch、拼接特征图"},
+  {fn:"torch.stack()",cat:"shape",sig:"torch.stack(tensors, dim=0, *, out=None)",desc:"沿新维度堆叠多个形状相同的张量",scene:"将多个样本堆成 batch"},
+  {fn:"torch.split()",cat:"shape",sig:"torch.split(tensor, split_size_or_sections, dim=0)",desc:"沿某维度切分为指定大小的块",scene:"将大 batch 切分成小块送入不同设备"},
+  {fn:"torch.chunk()",cat:"shape",sig:"torch.chunk(input, chunks, dim=0)",desc:"沿某维度等分为 chunks 块（最后一块可能小）",scene:"多 GPU 分块处理"},
+  {fn:"torch.unbind()",cat:"shape",sig:"torch.unbind(input, dim=0)",desc:"沿某维度拆分为若干张量（移除该维度）",scene:"逐帧处理视频序列、拆包 batch"},
+  {fn:".expand()",cat:"shape",sig:"t.expand(*sizes)",desc:"沿大小为 1 的维度扩展（不复制数据，共享存储）",scene:"广播前手动对齐形状，内存高效"},
+  {fn:".expand_as()",cat:"shape",sig:"t.expand_as(other)",desc:"扩展为与 other 相同的形状",scene:"简化 expand，形状由目标张量决定"},
+  {fn:".repeat()",cat:"shape",sig:"t.repeat(*repeats)",desc:"沿各维度重复复制数据（实际复制内存）",scene:"数据增强、平铺 kernel"},
+  {fn:".repeat_interleave()",cat:"shape",sig:"t.repeat_interleave(repeats, dim=None)",desc:"逐元素重复，类似 numpy.repeat",scene:"上采样、将每个样本重复 K 次"},
+  {fn:".contiguous()",cat:"shape",sig:"t.contiguous(memory_format=...)",desc:"返回内存连续的张量（必要时复制）",scene:"在 view() 报错后调用，或传入 CUDA kernel 前"},
+  {fn:"torch.broadcast_to()",cat:"shape",sig:"torch.broadcast_to(input, shape)",desc:"将张量广播到指定形状（不复制数据）",scene:"显式广播，调试时比隐式广播更清晰"},
+  {fn:"torch.broadcast_tensors()",cat:"shape",sig:"torch.broadcast_tensors(*tensors)",desc:"将多个张量广播到相同形状",scene:"批量对齐形状后做运算"},
+  {fn:".movedim()",cat:"shape",sig:"t.movedim(source, destination)",desc:"将指定维度移动到新位置",scene:"比 permute 更语义化的维度重排"},
+  {fn:".swapaxes()",cat:"shape",sig:"t.swapaxes(axis0, axis1)",desc:"交换两个轴，与 transpose 等价",scene:"与 NumPy 风格保持一致"},
+  // 数学
+  {fn:".add() / +",cat:"math",sig:"t.add(other, alpha=1)",desc:"逐元素加法，alpha 为 other 的缩放系数",scene:"残差连接：out = x + alpha * residual"},
+  {fn:".sub() / -",cat:"math",sig:"t.sub(other, alpha=1)",desc:"逐元素减法",scene:"差值计算、中心化处理"},
+  {fn:".mul() / *",cat:"math",sig:"t.mul(other)",desc:"逐元素乘法（Hadamard 积）",scene:"特征门控、Dropout mask 应用"},
+  {fn:".div() / /",cat:"math",sig:"t.div(other, rounding_mode=None)",desc:"逐元素除法；rounding_mode 可选 'trunc' / 'floor'",scene:"归一化、学习率缩放"},
+  {fn:".pow() / **",cat:"math",sig:"t.pow(exponent)",desc:"逐元素幂运算",scene:"L2 正则：(w ** 2).sum()"},
+  {fn:".sqrt()",cat:"math",sig:"t.sqrt()",desc:"逐元素开平方",scene:"Adam 分母：sqrt(v) + eps"},
+  {fn:".rsqrt()",cat:"math",sig:"t.rsqrt()",desc:"逐元素倒数平方根 1/√x",scene:"LayerNorm 归一化中的快速除法"},
+  {fn:".abs()",cat:"math",sig:"t.abs()",desc:"逐元素取绝对值",scene:"L1 Loss、梯度符号分析"},
+  {fn:".neg()",cat:"math",sig:"t.neg()",desc:"逐元素取反（乘以 -1）",scene:"反向传播手动推导、对称变换"},
+  {fn:".exp()",cat:"math",sig:"t.exp()",desc:"逐元素 e^x",scene:"Softmax 分子计算、概率密度"},
+  {fn:".exp2()",cat:"math",sig:"t.exp2()",desc:"逐元素 2^x",scene:"位移等价的快速幂，信号处理"},
+  {fn:".log()",cat:"math",sig:"t.log()",desc:"逐元素自然对数 ln(x)",scene:"交叉熵损失：-log(softmax(x))"},
+  {fn:".log2()",cat:"math",sig:"t.log2()",desc:"逐元素以 2 为底的对数",scene:"信息论计算、比特率分析"},
+  {fn:".log10()",cat:"math",sig:"t.log10()",desc:"逐元素以 10 为底的对数",scene:"dB 单位换算、音频处理"},
+  {fn:".log1p()",cat:"math",sig:"t.log1p()",desc:"逐元素计算 ln(1+x)，对小值数值稳定",scene:"计数特征对数变换，避免 log(0)"},
+  {fn:".sigmoid()",cat:"math",sig:"t.sigmoid()",desc:"逐元素 σ(x) = 1/(1+e^-x)",scene:"二分类输出层、门控单元"},
+  {fn:".tanh()",cat:"math",sig:"t.tanh()",desc:"逐元素双曲正切",scene:"RNN 隐藏层激活、值域压缩到 (-1,1)"},
+  {fn:"F.relu()",cat:"math",sig:"torch.nn.functional.relu(input, inplace=False)",desc:"逐元素 max(0, x)，最常用激活函数",scene:"需 import torch.nn.functional as F"},
+  {fn:".clamp()",cat:"math",sig:"t.clamp(min=None, max=None)",desc:"将值截断到 [min, max] 区间",scene:"梯度裁剪、像素值截断 [0,255]"},
+  {fn:".ceil()",cat:"math",sig:"t.ceil()",desc:"逐元素向上取整",scene:"计算填充大小等离散上界"},
+  {fn:".floor()",cat:"math",sig:"t.floor()",desc:"逐元素向下取整",scene:"坐标离散化、步长计算"},
+  {fn:".round()",cat:"math",sig:"t.round(decimals=0)",desc:"四舍五入到指定小数位",scene:"量化、概率离散化"},
+  {fn:".trunc()",cat:"math",sig:"t.trunc()",desc:"逐元素截断为整数（向零取整）",scene:"整数坐标计算"},
+  {fn:".frac()",cat:"math",sig:"t.frac()",desc:"逐元素提取小数部分 x - trunc(x)",scene:"周期性特征、哈希函数"},
+  {fn:".sign()",cat:"math",sig:"t.sign()",desc:"返回符号值（-1, 0, +1）",scene:"符号梯度下降、二值化"},
+  {fn:".sin() .cos() .tan()",cat:"math",sig:"t.sin()  t.cos()  t.tan()",desc:"逐元素三角函数",scene:"位置编码（Transformer）、波形生成"},
+  {fn:".asin() .acos() .atan()",cat:"math",sig:"t.asin()  t.acos()  t.atan()",desc:"逐元素反三角函数",scene:"角度恢复、旋转矩阵分解"},
+  {fn:".atan2()",cat:"math",sig:"t.atan2(other)",desc:"逐元素四象限反正切 atan2(y, x)",scene:"2D 向量角度计算，考虑象限符号"},
+  {fn:"torch.matmul()",cat:"math",sig:"torch.matmul(input, other, *, out=None)",desc:"矩阵乘法，支持广播和批量矩阵乘",scene:"全连接层、注意力分数 QK^T"},
+  {fn:"torch.addmm()",cat:"math",sig:"torch.addmm(input, mat1, mat2, beta=1, alpha=1)",desc:"beta*input + alpha*(mat1 @ mat2)，融合乘加",scene:"全连接层前向：bias + W @ x"},
+  {fn:".lerp()",cat:"math",sig:"t.lerp(end, weight)",desc:"线性插值：t + weight*(end-t)",scene:"模型权重插值、动画过渡"},
+  {fn:"torch.fmod()",cat:"math",sig:"torch.fmod(input, other)",desc:"逐元素取余（保留被除数符号）",scene:"循环索引、周期性边界处理"},
+  {fn:"torch.maximum()",cat:"math",sig:"torch.maximum(input, other)",desc:"逐元素取较大值（支持广播）",scene:"ReLU 实现、截断下界"},
+  {fn:"torch.minimum()",cat:"math",sig:"torch.minimum(input, other)",desc:"逐元素取较小值（支持广播）",scene:"截断上界、逐元素 min-pooling"},
+  {fn:"torch.hypot()",cat:"math",sig:"torch.hypot(input, other)",desc:"逐元素计算 √(x²+y²)，数值稳定",scene:"2D 向量长度、勾股定理"},
+  {fn:"torch.xlogy()",cat:"math",sig:"torch.xlogy(input, other)",desc:"逐元素计算 x*log(y)，x=0 时返回 0",scene:"KL 散度、熵计算中避免 0*log(0)"},
+  {fn:"torch.logaddexp()",cat:"math",sig:"torch.logaddexp(input, other)",desc:"数值稳定地计算 log(e^x + e^y)",scene:"log-sum-exp 技巧，稳定 softmax 计算"},
+  // 统计
+  {fn:".sum()",cat:"stat",sig:"t.sum(dim=None, keepdim=False, dtype=None)",desc:"对全部或指定维度求和",scene:"Loss 归约、特征求和池化"},
+  {fn:".mean()",cat:"stat",sig:"t.mean(dim=None, keepdim=False)",desc:"对全部或指定维度求均值",scene:"全局平均池化 (GAP)、均值损失"},
+  {fn:".median()",cat:"stat",sig:"t.median(dim=None, keepdim=False)",desc:"返回中位数（指定 dim 时同时返回索引）",scene:"鲁棒统计、异常值不敏感聚合"},
+  {fn:".mode()",cat:"stat",sig:"t.mode(dim=-1, keepdim=False)",desc:"返回众数及其索引",scene:"分类投票、多数决策"},
+  {fn:".max()",cat:"stat",sig:"t.max(dim=None, keepdim=False)",desc:"返回最大值（指定 dim 时返回 values 和 indices）",scene:"最大池化、Top-1 精度计算"},
+  {fn:".min()",cat:"stat",sig:"t.min(dim=None, keepdim=False)",desc:"返回最小值",scene:"寻找最小损失、范围分析"},
+  {fn:".argmax()",cat:"stat",sig:"t.argmax(dim=None, keepdim=False)",desc:"返回最大值的索引",scene:"分类预测：pred = logits.argmax(dim=1)"},
+  {fn:".argmin()",cat:"stat",sig:"t.argmin(dim=None, keepdim=False)",desc:"返回最小值的索引",scene:"寻找 loss 最小的样本位置"},
+  {fn:".std()",cat:"stat",sig:"t.std(dim=None, correction=1, keepdim=False)",desc:"标准差（correction=1 为无偏估计）",scene:"BatchNorm 统计量、特征归一化"},
+  {fn:".var()",cat:"stat",sig:"t.var(dim=None, correction=1, keepdim=False)",desc:"方差",scene:"分析特征分布、方差正则化"},
+  {fn:".norm()",cat:"stat",sig:"t.norm(p=2, dim=None, keepdim=False)",desc:"计算 Lp 范数",scene:"梯度裁剪、余弦相似度分母"},
+  {fn:"torch.topk()",cat:"stat",sig:"torch.topk(input, k, dim=-1, largest=True, sorted=True)",desc:"返回 top-k 值及其索引",scene:"Top-K 精度评估、Beam Search 候选"},
+  {fn:"torch.kthvalue()",cat:"stat",sig:"torch.kthvalue(input, k, dim=-1, keepdim=False)",desc:"返回第 k 小的值及其索引",scene:"分位数计算、排名筛选"},
+  {fn:"torch.unique()",cat:"stat",sig:"torch.unique(input, sorted=True, return_inverse=False, return_counts=False)",desc:"返回唯一值，可选返回逆映射和计数",scene:"统计标签种类、词频统计"},
+  {fn:"torch.unique_consecutive()",cat:"stat",sig:"torch.unique_consecutive(input, return_inverse=False, return_counts=False)",desc:"只去掉连续重复值（不排序）",scene:"RLE 编码、序列去重"},
+  {fn:".cumsum()",cat:"stat",sig:"t.cumsum(dim, dtype=None)",desc:"沿某维度累积求和",scene:"前缀和、CDF 估计、注意力掩码生成"},
+  {fn:".cumprod()",cat:"stat",sig:"t.cumprod(dim, dtype=None)",desc:"沿某维度累积乘积",scene:"概率链乘、折扣回报 (RL)"},
+  {fn:".cummax()",cat:"stat",sig:"t.cummax(dim)",desc:"沿某维度累积最大值，返回值和索引",scene:"序列峰值追踪、running max"},
+  {fn:".cummin()",cat:"stat",sig:"t.cummin(dim)",desc:"沿某维度累积最小值，返回值和索引",scene:"序列谷值追踪、running min"},
+  {fn:"torch.histc()",cat:"stat",sig:"torch.histc(input, bins=100, min=0, max=0)",desc:"计算一维直方图",scene:"特征分布可视化、量化区间统计"},
+  {fn:"torch.bincount()",cat:"stat",sig:"torch.bincount(input, weights=None, minlength=0)",desc:"统计非负整数张量中各值出现次数",scene:"标签频率统计、类别不平衡分析"},
+  {fn:"torch.corrcoef()",cat:"stat",sig:"torch.corrcoef(input)",desc:"计算皮尔逊相关系数矩阵",scene:"特征相关性分析、多变量统计"},
+  {fn:"torch.cov()",cat:"stat",sig:"torch.cov(input, correction=1, aweights=None, fweights=None)",desc:"计算协方差矩阵",scene:"高斯分布建模、主成分分析 PCA"},
+  // 索引
+  {fn:"t[i, j, ...]",cat:"index",sig:"t[start:end:step, ...]",desc:"标准切片，支持负索引、步长、省略号 ...",scene:"取子矩阵、隔行采样、batch 前 N 个"},
+  {fn:"torch.index_select()",cat:"index",sig:"torch.index_select(input, dim, index)",desc:"按一维 long 索引在某维度选取行/列",scene:"Embedding lookup、按 ID 取样本"},
+  {fn:"torch.gather()",cat:"index",sig:"torch.gather(input, dim, index)",desc:"按 index 从 input 逐位置采集元素",scene:"取分类概率：probs.gather(1, labels)"},
+  {fn:"torch.scatter()",cat:"index",sig:"torch.scatter(input, dim, index, src)",desc:"按 index 将 src 的值写入 input（非原地）",scene:"one-hot 编码：x.scatter(1, label, 1.0)"},
+  {fn:"torch.scatter_()",cat:"index",sig:"t.scatter_(dim, index, src_or_value)",desc:"原地版 scatter，直接修改 t",scene:"原地写入，避免分配新内存"},
+  {fn:"torch.scatter_add()",cat:"index",sig:"torch.scatter_add(input, dim, index, src)",desc:"将 src 按 index 加到 input 对应位置",scene:"图神经网络消息聚合（节点特征累加）"},
+  {fn:"torch.scatter_reduce()",cat:"index",sig:"torch.scatter_reduce(input, dim, index, src, reduce)",desc:"按 index 对 src 做归约（sum/mean/amax/amin/prod）",scene:"图聚合通用接口，比 scatter_add 更灵活"},
+  {fn:"torch.where()",cat:"index",sig:"torch.where(condition, x, y)",desc:"按 bool 条件逐元素从 x 或 y 选值（支持广播）",scene:"条件替换、padding mask 填充"},
+  {fn:".masked_fill()",cat:"index",sig:"t.masked_fill(mask, value)",desc:"将 mask=True 的位置替换为 value",scene:"注意力 mask：将 padding 位置填 -inf"},
+  {fn:"torch.masked_select()",cat:"index",sig:"torch.masked_select(input, mask)",desc:"按 bool mask 选出元素，返回一维张量",scene:"选出满足条件的样本，动态形状"},
+  {fn:".nonzero()",cat:"index",sig:"t.nonzero(as_tuple=False)",desc:"返回非零元素的坐标（as_tuple=True 返回 tuple）",scene:"稀疏操作、目标检测非零 box 索引"},
+  {fn:"torch.take()",cat:"index",sig:"torch.take(input, index)",desc:"将 input 视为一维，按 index 取元素",scene:"全局随机采样、展平后按序号取值"},
+  {fn:"torch.take_along_dim()",cat:"index",sig:"torch.take_along_dim(input, indices, dim)",desc:"沿某维度按 indices 取值（由 topk/argsort 产生）",scene:"取 argsort 排序后的实际值"},
+  {fn:"torch.index_put()",cat:"index",sig:"torch.index_put(input, indices, values, accumulate=False)",desc:"按高级索引写入 values（accumulate=True 时相加）",scene:"稀疏更新、梯度累积到特定位置"},
+  {fn:".select()",cat:"index",sig:"t.select(dim, index)",desc:"在某维度取单个切片（移除该维度）",scene:"取 batch 中第 i 个样本"},
+  {fn:".narrow()",cat:"index",sig:"t.narrow(dim, start, length)",desc:"沿某维度取连续切片（保留维度）",scene:"取序列前 N 步、滑动窗口截取"},
+  {fn:"torch.diagonal()",cat:"index",sig:"torch.diagonal(input, offset=0, dim1=0, dim2=1)",desc:"提取指定两维的对角线元素（返回 view）",scene:"提取批量矩阵主对角线"},
+  {fn:".triu()",cat:"index",sig:"t.triu(diagonal=0)",desc:"保留上三角元素，其余置 0",scene:"自回归掩码生成、Causal Attention mask"},
+  {fn:".tril()",cat:"index",sig:"t.tril(diagonal=0)",desc:"保留下三角元素，其余置 0",scene:"下三角掩码、Cholesky 分解辅助"},
+  // 类型
+  {fn:".float()",cat:"type",sig:"t.float()",desc:"转换为 float32（torch.float32）",scene:"大多数神经网络计算的默认类型"},
+  {fn:".double()",cat:"type",sig:"t.double()",desc:"转换为 float64（torch.float64）",scene:"高精度科学计算、数值稳定性要求高时"},
+  {fn:".half()",cat:"type",sig:"t.half()",desc:"转换为 float16（torch.float16）",scene:"混合精度训练（AMP）节省显存"},
+  {fn:".bfloat16()",cat:"type",sig:"t.bfloat16()",desc:"转换为 bfloat16（与 float32 指数位相同）",scene:"TPU / A100 原生格式，梯度精度优于 fp16"},
+  {fn:".int()",cat:"type",sig:"t.int()",desc:"转换为 int32（torch.int32）",scene:"整数坐标、循环步数"},
+  {fn:".long()",cat:"type",sig:"t.long()",desc:"转换为 int64（torch.int64）",scene:"索引张量、CrossEntropyLoss 标签输入"},
+  {fn:".bool()",cat:"type",sig:"t.bool()",desc:"转换为 bool 类型（torch.bool）",scene:"生成掩码：(x > 0).bool()"},
+  {fn:".to()",cat:"type",sig:"t.to(device=None, dtype=None, non_blocking=False, copy=False)",desc:"同时转换设备和数据类型（最通用接口）",scene:"模型和数据移至 GPU：t.to('cuda')"},
+  {fn:".cuda()",cat:"type",sig:"t.cuda(device=None, non_blocking=False)",desc:"将张量移至 GPU 显存",scene:"送入 GPU 训练（与 .to('cuda') 等价）"},
+  {fn:".cpu()",cat:"type",sig:"t.cpu()",desc:"将张量移至 CPU 内存",scene:".numpy() 前必须先 .cpu()"},
+  {fn:".numpy()",cat:"type",sig:"t.numpy(force=False)",desc:"转换为 NumPy 数组（需 CPU 且无梯度）",scene:"可视化、与 sklearn / scipy 等库交互"},
+  {fn:".item()",cat:"type",sig:"t.item()",desc:"将标量张量转换为 Python 数值",scene:"记录 loss：writer.add_scalar('loss', loss.item())"},
+  {fn:".tolist()",cat:"type",sig:"t.tolist()",desc:"将张量转换为嵌套 Python list",scene:"序列化输出、调试打印多维数组"},
+  {fn:".detach()",cat:"type",sig:"t.detach()",desc:"从计算图分离，返回不跟踪梯度的张量",scene:"冻结特征提取器、记录中间值"},
+  {fn:".clone()",cat:"type",sig:"t.clone()",desc:"创建数据相同的新张量（保留梯度图、复制数据）",scene:"需要修改副本又不影响原张量时"},
+  {fn:".copy_()",cat:"type",sig:"t.copy_(src, non_blocking=False)",desc:"原地将 src 的数据复制到 t（允许不同 dtype / device）",scene:"预分配 buffer 后反复复用"},
+  {fn:".pin_memory()",cat:"type",sig:"t.pin_memory()",desc:"将 CPU 张量转为固定内存（页锁定）",scene:"加速 CPU → GPU 异步传输，搭配 non_blocking=True"},
+  {fn:".type_as()",cat:"type",sig:"t.type_as(other)",desc:"转换为与 other 相同的类型和设备",scene:"确保两个张量类型一致后做运算"},
+  {fn:".is_floating_point()",cat:"type",sig:"t.is_floating_point()",desc:"返回是否为浮点类型",scene:"类型断言、条件分支处理"},
+  {fn:".is_cuda",cat:"type",sig:"t.is_cuda  (property)",desc:"布尔属性，表示张量是否在 GPU 上",scene:"设备分支判断"},
+  // 线性代数
+  {fn:"torch.mm()",cat:"linalg",sig:"torch.mm(input, mat2, *, out=None)",desc:"严格二维矩阵乘法（不广播）",scene:"比 matmul 稍快，明确知道是 2D 时用"},
+  {fn:"torch.bmm()",cat:"linalg",sig:"torch.bmm(input, mat2, *, out=None)",desc:"批量矩阵乘法 (B,n,m)×(B,m,p)→(B,n,p)",scene:"注意力分数计算：Q @ K.T (batched)"},
+  {fn:"torch.linalg.solve()",cat:"linalg",sig:"torch.linalg.solve(A, B, *, left=True)",desc:"求解线性方程组 AX = B",scene:"最小二乘回归、线性系统求解"},
+  {fn:"torch.linalg.lstsq()",cat:"linalg",sig:"torch.linalg.lstsq(A, B, rcond=None, driver=None)",desc:"最小范数最小二乘解",scene:"过定/欠定方程组的最优近似解"},
+  {fn:"torch.linalg.inv()",cat:"linalg",sig:"torch.linalg.inv(A, *, out=None)",desc:"计算方阵的逆",scene:"协方差矩阵求逆、变换矩阵求逆"},
+  {fn:"torch.linalg.pinv()",cat:"linalg",sig:"torch.linalg.pinv(A, rcond=None, hermitian=False)",desc:"计算 Moore-Penrose 伪逆",scene:"欠定 / 奇异矩阵的广义逆"},
+  {fn:"torch.linalg.det()",cat:"linalg",sig:"torch.linalg.det(A)",desc:"计算方阵行列式",scene:"判断矩阵是否可逆、体积变换系数"},
+  {fn:"torch.linalg.slogdet()",cat:"linalg",sig:"torch.linalg.slogdet(A)",desc:"返回行列式的符号和对数绝对值（数值稳定）",scene:"高维高斯分布对数似然计算"},
+  {fn:"torch.linalg.svd()",cat:"linalg",sig:"torch.linalg.svd(A, full_matrices=True, driver=None)",desc:"奇异值分解，返回 U, S, Vh",scene:"降维、矩阵压缩、PCA 实现"},
+  {fn:"torch.linalg.svdvals()",cat:"linalg",sig:"torch.linalg.svdvals(A, driver=None)",desc:"只返回奇异值（比 svd 更快）",scene:"矩阵秩估计、条件数计算"},
+  {fn:"torch.linalg.eig()",cat:"linalg",sig:"torch.linalg.eig(A)",desc:"复数特征值分解，返回特征值和右特征向量",scene:"谱分析、图神经网络拉普拉斯特征"},
+  {fn:"torch.linalg.eigh()",cat:"linalg",sig:"torch.linalg.eigh(A, UPLO='L')",desc:"实对称 / Hermitian 矩阵特征值分解（结果为实数）",scene:"协方差矩阵特征分解、PCA"},
+  {fn:"torch.linalg.eigvals()",cat:"linalg",sig:"torch.linalg.eigvals(A)",desc:"只返回特征值（不计算特征向量）",scene:"谱半径估计、快速可逆性判断"},
+  {fn:"torch.linalg.norm()",cat:"linalg",sig:"torch.linalg.norm(A, ord=None, dim=None, keepdim=False)",desc:"矩阵 / 向量范数（Frobenius、核范数、向量 p 范数等）",scene:"正则化损失、矩阵条件数估计"},
+  {fn:"torch.linalg.cond()",cat:"linalg",sig:"torch.linalg.cond(A, p=None)",desc:"计算矩阵条件数（最大奇异值 / 最小奇异值）",scene:"判断矩阵病态程度、数值稳定性分析"},
+  {fn:"torch.linalg.matrix_rank()",cat:"linalg",sig:"torch.linalg.matrix_rank(A, atol=None, rtol=None)",desc:"估计矩阵的数值秩",scene:"线性相关性检测、特征冗余分析"},
+  {fn:"torch.linalg.cholesky()",cat:"linalg",sig:"torch.linalg.cholesky(A, upper=False)",desc:"正定矩阵的 Cholesky 分解 A = LL^T",scene:"高斯过程、快速求解正定系统"},
+  {fn:"torch.linalg.qr()",cat:"linalg",sig:"torch.linalg.qr(A, mode='reduced')",desc:"QR 分解，返回正交矩阵 Q 和上三角矩阵 R",scene:"数值稳定的线性方程求解、Gram-Schmidt"},
+  {fn:"torch.linalg.lu()",cat:"linalg",sig:"torch.linalg.lu(A, pivot=True)",desc:"LU 分解（带行主元），返回 P, L, U",scene:"求解多右端项线性方程组"},
+  {fn:"torch.dot()",cat:"linalg",sig:"torch.dot(input, other)",desc:"一维向量点积（两个 1D 张量）",scene:"余弦相似度分子计算"},
+  {fn:"torch.vdot()",cat:"linalg",sig:"torch.vdot(input, other)",desc:"共轭点积（复数时取 input 的共轭）",scene:"复数向量内积、信号相关性"},
+  {fn:"torch.outer()",cat:"linalg",sig:"torch.outer(input, vec2)",desc:"向量外积（秩 1 矩阵）",scene:"注意力 ALiBi 位置编码、秩 1 更新"},
+  {fn:"torch.cross()",cat:"linalg",sig:"torch.cross(input, other, dim=None)",desc:"三维向量叉积",scene:"3D 几何计算、法向量求解"},
+  {fn:"torch.trace()",cat:"linalg",sig:"torch.trace(input)",desc:"返回二维矩阵迹（对角线元素之和）",scene:"矩阵范数上界、核技巧计算"},
+  {fn:"torch.linalg.matrix_exp()",cat:"linalg",sig:"torch.linalg.matrix_exp(A)",desc:"计算矩阵指数 e^A",scene:"连续时间动力学、李群变换"},
+  // 自动微分
+  {fn:".requires_grad_()",cat:"grad",sig:"t.requires_grad_(requires_grad=True)",desc:"原地设置是否需要追踪梯度",scene:"将已有张量加入计算图，微调时解冻参数"},
+  {fn:".backward()",cat:"grad",sig:"t.backward(gradient=None, retain_graph=False, create_graph=False)",desc:"反向传播，计算关于叶节点的梯度",scene:"标准训练循环：loss.backward()"},
+  {fn:".grad",cat:"grad",sig:"t.grad  (property)",desc:"叶节点张量的梯度，反向传播后可读取",scene:"读取参数梯度：param.grad"},
+  {fn:".grad_fn",cat:"grad",sig:"t.grad_fn  (property)",desc:"创建该张量的操作节点（叶节点为 None）",scene:"调试计算图，确认梯度是否连接"},
+  {fn:"torch.no_grad()",cat:"grad",sig:"with torch.no_grad(): ...",desc:"上下文管理器，禁用梯度计算",scene:"推理 / 验证阶段，节省内存和计算"},
+  {fn:"torch.enable_grad()",cat:"grad",sig:"with torch.enable_grad(): ...",desc:"在 no_grad 内部强制启用梯度追踪",scene:"全局禁梯度的推理代码中局部重新启用"},
+  {fn:"torch.inference_mode()",cat:"grad",sig:"with torch.inference_mode(): ...",desc:"比 no_grad 更激进的推理模式",scene:"纯推理部署，性能优于 no_grad"},
+  {fn:"torch.autograd.grad()",cat:"grad",sig:"torch.autograd.grad(outputs, inputs, grad_outputs=None, retain_graph=False, create_graph=False)",desc:"显式计算梯度（不累积到 .grad）",scene:"高阶梯度、MAML 元学习、梯度惩罚 (WGAN-GP)"},
+  {fn:"torch.autograd.backward()",cat:"grad",sig:"torch.autograd.backward(tensors, grad_tensors=None, retain_graph=False)",desc:"对多个输出同时反向传播",scene:"多任务损失同时反传、非标量输出梯度"},
+  {fn:".retain_grad()",cat:"grad",sig:"t.retain_grad()",desc:"保留非叶节点的梯度（默认反传后释放）",scene:"调试中间层梯度值"},
+  {fn:"autograd.functional.jacobian()",cat:"grad",sig:"torch.autograd.functional.jacobian(func, inputs)",desc:"计算函数的雅可比矩阵",scene:"灵敏度分析、物理仿真梯度"},
+  {fn:"autograd.functional.hessian()",cat:"grad",sig:"torch.autograd.functional.hessian(func, inputs)",desc:"计算函数的 Hessian 矩阵",scene:"二阶优化、曲率分析"},
+  {fn:".is_leaf",cat:"grad",sig:"t.is_leaf  (property)",desc:"是否为叶节点（用户创建或 requires_grad=False 的张量）",scene:"确认参数是否为叶节点"},
+  {fn:".zero_()",cat:"grad",sig:"t.zero_()",desc:"原地将张量所有元素置 0",scene:"清空梯度：optimizer.zero_grad()"},
+  {fn:"autograd.set_detect_anomaly()",cat:"grad",sig:"torch.autograd.set_detect_anomaly(mode)",desc:"开启后在反向传播产生 nan/inf 时抛出详细报错",scene:"调试梯度爆炸 / 消失问题"},
+  // 随机
+  {fn:"torch.rand()",cat:"random",sig:"torch.rand(*size, generator=None, device=None, dtype=None)",desc:"[0, 1) 均匀分布",scene:"随机初始化、Dropout mask"},
+  {fn:"torch.randn()",cat:"random",sig:"torch.randn(*size, generator=None, device=None, dtype=None)",desc:"标准正态分布 N(0,1)",scene:"权重初始化、加噪声"},
+  {fn:"torch.normal()",cat:"random",sig:"torch.normal(mean, std, *, size=None, out=None, generator=None)",desc:"自定义均值/标准差正态分布",scene:"带参数的正态采样，mean/std 可为张量"},
+  {fn:"torch.randint()",cat:"random",sig:"torch.randint(low=0, high, size, *, generator=None, dtype=None)",desc:"在 [low, high) 均匀采样整数",scene:"随机标签、随机索引采样"},
+  {fn:"torch.randperm()",cat:"random",sig:"torch.randperm(n, *, generator=None, dtype=torch.int64)",desc:"生成 0 到 n-1 的随机排列",scene:"数据 shuffle：data[torch.randperm(N)]"},
+  {fn:"torch.bernoulli()",cat:"random",sig:"torch.bernoulli(input, *, generator=None, out=None)",desc:"按 input 中的概率 p 采样 Bernoulli 分布（0/1）",scene:"Dropout mask 生成"},
+  {fn:"torch.multinomial()",cat:"random",sig:"torch.multinomial(input, num_samples, replacement=False, *, generator=None)",desc:"按权重概率从各行多项式采样",scene:"语言模型按概率采样词、重要性采样"},
+  {fn:"torch.poisson()",cat:"random",sig:"torch.poisson(input, generator=None)",desc:"按 input 中的 λ 参数采样泊松分布",scene:"计数数据模拟、泊松噪声增强"},
+  {fn:"torch.rand_like()",cat:"random",sig:"torch.rand_like(input, dtype=None)",desc:"生成与 input 形状相同的 [0,1) 均匀随机张量",scene:"同形状随机 mask，不用手写 size"},
+  {fn:"torch.randn_like()",cat:"random",sig:"torch.randn_like(input, dtype=None)",desc:"生成与 input 形状相同的标准正态随机张量",scene:"加噪声：x + eps * torch.randn_like(x)"},
+  {fn:"torch.randint_like()",cat:"random",sig:"torch.randint_like(input, low=0, high)",desc:"生成与 input 形状相同的随机整数张量",scene:"同形状随机标签、测试数据生成"},
+  {fn:"torch.manual_seed()",cat:"random",sig:"torch.manual_seed(seed)",desc:"设置 CPU 随机数种子",scene:"实验复现：torch.manual_seed(42)"},
+  {fn:"torch.cuda.manual_seed_all()",cat:"random",sig:"torch.cuda.manual_seed_all(seed)",desc:"设置所有 GPU 的随机数种子",scene:"多 GPU 训练可复现性保证"},
+  {fn:"torch.Generator()",cat:"random",sig:"g = torch.Generator(device='cpu')\ng.manual_seed(seed)",desc:"创建独立的随机数生成器对象",scene:"不同线程 / DataLoader worker 使用独立 RNG"},
+  {fn:"torch.get_rng_state()",cat:"random",sig:"torch.get_rng_state()",desc:"保存当前随机数状态（返回 ByteTensor）",scene:"检查点恢复时保存 RNG 状态"},
+  {fn:"torch.set_rng_state()",cat:"random",sig:"torch.set_rng_state(new_state)",desc:"恢复保存的随机数状态",scene:"从检查点精确恢复训练随机性"},
+];
+ 
+let activeFilter = "all", searchVal = "";
+ 
+function svgIcon(name) { return ICON[name] || ""; }
+ 
+const chipsEl = document.getElementById("chips");
+const legendEl = document.getElementById("legend");
+ 
+const allBtn = document.createElement("button");
+allBtn.className = "chip active"; allBtn.dataset.key = "all";
+allBtn.innerHTML = svgIcon("list") + " 全部";
+chipsEl.appendChild(allBtn);
+ 
+const CAT_ICONS = { create:"plus", shape:"resize", math:"math", stat:"chart", index:"cut", type:"transfer", linalg:"calc", grad:"grad", random:"dice" };
+ 
+Object.entries(CATS).forEach(([key, c]) => {
+  const btn = document.createElement("button");
+  btn.className = "chip"; btn.dataset.key = key;
+  btn.innerHTML = svgIcon(CAT_ICONS[key]) + " " + c.label;
+  chipsEl.appendChild(btn);
+  const dot = document.createElement("span");
+  dot.className = "legend-dot";
+  dot.innerHTML = `<span class="dot" style="background:${c.dot}"></span>${c.label}`;
+  legendEl.appendChild(dot);
+});
+ 
+chipsEl.addEventListener("click", e => {
+  const btn = e.target.closest(".chip");
+  if (!btn) return;
+  activeFilter = btn.dataset.key;
+  chipsEl.querySelectorAll(".chip").forEach(b => b.classList.toggle("active", b === btn));
+  render();
+});
+ 
+document.getElementById("search").addEventListener("input", e => {
+  searchVal = e.target.value; render();
+});
+ 
+function hl(str, q) {
+  if (!q) return str;
+  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
+  return str.replace(re, '<mark>$1</mark>');
+}
+ 
+function render() {
+  const q = searchVal.toLowerCase().trim();
+  const rows = DATA.filter(d => {
+    const mc = activeFilter === "all" || d.cat === activeFilter;
+    const mq = !q || d.fn.toLowerCase().includes(q) || d.desc.toLowerCase().includes(q) || d.scene.toLowerCase().includes(q) || CATS[d.cat].label.includes(q);
+    return mc && mq;
+  });
+  document.getElementById("count").textContent = `${rows.length} / ${DATA.length} 个方法`;
+  const tb = document.getElementById("tbody");
+  if (!rows.length) {
+    tb.innerHTML = `<tr><td colspan="4" class="empty">${svgIcon("sad")}<br>没有匹配的方法</td></tr>`;
+    return;
+  }
+  const grouped = activeFilter === "all" && !q;
+  let html = "", lastCat = null;
+  rows.forEach(d => {
+    if (grouped && d.cat !== lastCat) {
+      const c = CATS[d.cat];
+      html += `<tr class="group-hdr"><td colspan="4"><span>${svgIcon(CAT_ICONS[d.cat])} ${c.label}</span></td></tr>`;
+      lastCat = d.cat;
+    }
+    const c = CATS[d.cat];
+    html += `<tr class="data-row">
+      <td><div class="fn-name">${hl(d.fn, searchVal)}</div></td>
+      <td class="hide-mobile"><span class="badge ${c.cls}">${svgIcon(CAT_ICONS[d.cat])} ${c.label}</span></td>
+      <td class="hide-mobile"><div class="sig-text">${hl(d.sig, searchVal)}</div></td>
+      <td>
+        <div class="desc-text">${hl(d.desc, searchVal)}</div>
+        <div class="scene-text">${svgIcon("bulb")} ${hl(d.scene, searchVal)}</div>
+      </td>
+    </tr>`;
+  });
+  tb.innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>
