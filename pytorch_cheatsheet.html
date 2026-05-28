@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>PyTorch Tensor 常用方法速查表</title>
+<title>PyTorch 常用方法速查表</title>
 <style>
   :root {
     --bg: #ffffff;
@@ -39,6 +39,8 @@
     .b-linalg{background:#2e0a1e!important;color:#f59bbf!important}
     .b-grad{background:#252520!important;color:#b0b0a8!important}
     .b-random{background:#2e0a0a!important;color:#f58080!important}
+    .b-data{background:#062b2f!important;color:#61d9e6!important}
+    .b-transform{background:#291740!important;color:#d7adff!important}
     mark{background:#5a4a00!important;color:#ffd966!important}
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -249,6 +251,8 @@
   .b-linalg { background: #FBEAF0; color: #72243E; }
   .b-grad   { background: #F1EFE8; color: #444441; }
   .b-random { background: #FCEBEB; color: #791F1F; }
+  .b-data   { background: #DFF5F7; color: #07515B; }
+  .b-transform { background: #F1E6FF; color: #573184; }
   .desc-text {
     font-size: 13px;
     color: var(--text-primary);
@@ -288,8 +292,8 @@
 <body>
 <div class="page">
   <header>
-    <h1>PyTorch Tensor 常用方法速查表</h1>
-    <p class="subtitle">170+ 个方法 · 9 大分类 · 支持搜索与筛选</p>
+    <h1>PyTorch 常用方法速查表</h1>
+    <p class="subtitle">254 个方法 · 11 大分类 · 支持搜索与筛选</p>
   </header>
  
   <div class="toolbar">
@@ -334,6 +338,8 @@ const ICON = {
   calc:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="12" x2="8" y2="12"/><line x1="12" y1="12" x2="12" y2="12"/><line x1="16" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="12" y1="16" x2="12" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>`,
   grad:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>`,
   dice:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="4"/><circle cx="8" cy="8" r="1" fill="currentColor"/><circle cx="16" cy="8" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="8" cy="16" r="1" fill="currentColor"/><circle cx="16" cy="16" r="1" fill="currentColor"/></svg>`,
+  data:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>`,
+  transform:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9H6"/><path d="M20 9h-2"/><path d="m17.8 6.2 1.4-1.4"/><path d="m10.8 13.2-1.4 1.4"/><path d="m10.8 4.8-1.4-1.4"/><path d="m17.8 11.8 1.4 1.4"/><path d="M4 20l6-6"/><path d="m14 18 6-6"/><path d="M4 14h6v6"/></svg>`,
   bulb:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>`,
   sad:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`,
 };
@@ -348,6 +354,8 @@ const CATS = {
   linalg: { label:"线性代数",  icon:"calc",     cls:"b-linalg", dot:"#D4537E" },
   grad:   { label:"自动微分",  icon:"grad",     cls:"b-grad",   dot:"#888780" },
   random: { label:"随机采样",  icon:"dice",     cls:"b-random", dot:"#E24B4A" },
+  data:   { label:"数据加载",  icon:"data",     cls:"b-data",   dot:"#18A6B6" },
+  transform: { label:"图像变换", icon:"transform", cls:"b-transform", dot:"#8A57C8" },
 };
  
 const DATA = [
@@ -557,6 +565,65 @@ const DATA = [
   {fn:"torch.Generator()",cat:"random",sig:"g = torch.Generator(device='cpu')\ng.manual_seed(seed)",desc:"创建独立的随机数生成器对象",scene:"不同线程 / DataLoader worker 使用独立 RNG"},
   {fn:"torch.get_rng_state()",cat:"random",sig:"torch.get_rng_state()",desc:"保存当前随机数状态（返回 ByteTensor）",scene:"检查点恢复时保存 RNG 状态"},
   {fn:"torch.set_rng_state()",cat:"random",sig:"torch.set_rng_state(new_state)",desc:"恢复保存的随机数状态",scene:"从检查点精确恢复训练随机性"},
+  // 图像变换
+  {fn:"transform.Compose()",cat:"transform",sig:"import torchvision.transforms as transform\ntransform.Compose([t1, t2, ...])",desc:"按顺序组合多个图像或张量变换",scene:"把 Resize、ToTensor、Normalize 串成一个预处理流水线"},
+  {fn:"transform.ToTensor()",cat:"transform",sig:"transform.ToTensor()",desc:"将 PIL Image 或 ndarray 转为 FloatTensor，并把像素缩放到 [0,1]",scene:"传统 torchvision 图像分类输入预处理"},
+  {fn:"transform.PILToTensor()",cat:"transform",sig:"transform.PILToTensor()",desc:"将 PIL Image 转为 Tensor，保留原始数值范围和 dtype",scene:"需要先保留 uint8 像素，再统一转换 dtype 的场景"},
+  {fn:"transform.ConvertImageDtype()",cat:"transform",sig:"transform.ConvertImageDtype(torch.float32)",desc:"转换图像张量 dtype，并按图像语义缩放数值范围",scene:"uint8 图像转 float32，或 float32 转 half 以节省显存"},
+  {fn:"transform.Normalize()",cat:"transform",sig:"transform.Normalize(mean, std)",desc:"按通道执行 output = (input - mean) / std",scene:"使用 ImageNet 预训练模型时匹配训练分布"},
+  {fn:"transform.Resize()",cat:"transform",sig:"transform.Resize(size, interpolation=transform.InterpolationMode.BILINEAR)",desc:"调整图像短边或指定高宽",scene:"把不同尺寸图片统一到模型输入大小"},
+  {fn:"transform.CenterCrop()",cat:"transform",sig:"transform.CenterCrop(size)",desc:"从图像中心裁剪指定大小区域",scene:"验证/测试阶段保持确定性的裁剪策略"},
+  {fn:"transform.RandomCrop()",cat:"transform",sig:"transform.RandomCrop(size, padding=None)",desc:"随机裁剪指定大小区域，可先做 padding",scene:"训练阶段增加平移鲁棒性"},
+  {fn:"transform.RandomResizedCrop()",cat:"transform",sig:"transform.RandomResizedCrop(size, scale=(0.08, 1.0), ratio=(3/4, 4/3))",desc:"随机裁剪一块区域后缩放到目标尺寸",scene:"图像分类中常用的数据增强，如 ResNet 训练"},
+  {fn:"transform.RandomHorizontalFlip()",cat:"transform",sig:"transform.RandomHorizontalFlip(p=0.5)",desc:"按概率水平翻转图像",scene:"自然图像分类、检测训练中的基础增强"},
+  {fn:"transform.RandomVerticalFlip()",cat:"transform",sig:"transform.RandomVerticalFlip(p=0.5)",desc:"按概率垂直翻转图像",scene:"遥感、显微图像等上下方向不固定的数据"},
+  {fn:"transform.RandomRotation()",cat:"transform",sig:"transform.RandomRotation(degrees, interpolation=transform.InterpolationMode.NEAREST)",desc:"在给定角度范围内随机旋转图像",scene:"增强模型对拍摄角度变化的鲁棒性"},
+  {fn:"transform.RandomAffine()",cat:"transform",sig:"transform.RandomAffine(degrees, translate=None, scale=None, shear=None)",desc:"随机仿射变换，支持旋转、平移、缩放和错切",scene:"模拟视角、位置和尺度变化"},
+  {fn:"transform.ColorJitter()",cat:"transform",sig:"transform.ColorJitter(brightness=0, contrast=0, saturation=0, hue=0)",desc:"随机扰动亮度、对比度、饱和度和色相",scene:"缓解光照和相机风格变化带来的过拟合"},
+  {fn:"transform.Grayscale()",cat:"transform",sig:"transform.Grayscale(num_output_channels=1)",desc:"将图像转换为灰度图",scene:"模型只需要纹理/结构信息，或统一单通道输入"},
+  {fn:"transform.RandomGrayscale()",cat:"transform",sig:"transform.RandomGrayscale(p=0.1)",desc:"按概率将图像转为灰度",scene:"自监督学习、颜色不应成为主要线索的任务"},
+  {fn:"transform.GaussianBlur()",cat:"transform",sig:"transform.GaussianBlur(kernel_size, sigma=(0.1, 2.0))",desc:"使用高斯核模糊图像",scene:"模拟失焦、运动模糊或自监督增强"},
+  {fn:"transform.RandomErasing()",cat:"transform",sig:"transform.RandomErasing(p=0.5, scale=(0.02, 0.33), ratio=(0.3, 3.3))",desc:"随机擦除张量图像中的矩形区域",scene:"遮挡鲁棒性训练，通常放在 ToTensor/Normalize 之后"},
+  {fn:"transform.Pad()",cat:"transform",sig:"transform.Pad(padding, fill=0, padding_mode='constant')",desc:"给图像边缘添加 padding",scene:"随机裁剪前扩边，或保持目标尺寸"},
+  {fn:"transform.Lambda()",cat:"transform",sig:"transform.Lambda(lambda x: ...)",desc:"用自定义函数封装一个轻量变换",scene:"快速插入项目特定预处理逻辑"},
+  {fn:"transform.RandomApply()",cat:"transform",sig:"transform.RandomApply(transform_list, p=0.5)",desc:"按概率执行一组变换",scene:"让强增强不是每张图都生效，控制增强强度"},
+  {fn:"transform.RandomChoice()",cat:"transform",sig:"transform.RandomChoice(transform_list)",desc:"从多个变换中随机选择一个执行",scene:"在多种增强策略之间随机切换"},
+  {fn:"transform.RandomOrder()",cat:"transform",sig:"transform.RandomOrder(transform_list)",desc:"以随机顺序执行给定变换列表",scene:"降低增强流水线顺序固定带来的偏差"},
+  {fn:"transform.ToPILImage()",cat:"transform",sig:"transform.ToPILImage(mode=None)",desc:"将 Tensor 或 ndarray 转回 PIL Image",scene:"调试可视化、保存中间增强结果"},
+  {fn:"transform.InterpolationMode",cat:"transform",sig:"transform.InterpolationMode.BILINEAR",desc:"插值模式枚举，如 NEAREST、BILINEAR、BICUBIC",scene:"Resize、Rotate 等几何变换中明确插值策略"},
+  {fn:"transform.AutoAugment()",cat:"transform",sig:"transform.AutoAugment(policy=transform.AutoAugmentPolicy.IMAGENET)",desc:"使用预定义自动增强策略组合",scene:"无需手调增强组合，快速提升图像分类 baseline"},
+  {fn:"transform.RandAugment()",cat:"transform",sig:"transform.RandAugment(num_ops=2, magnitude=9)",desc:"随机选择若干增强操作并使用统一强度",scene:"现代图像分类训练中的通用强增强"},
+  {fn:"transform.TrivialAugmentWide()",cat:"transform",sig:"transform.TrivialAugmentWide(num_magnitude_bins=31)",desc:"每张图随机选择一种增强和强度",scene:"用极少超参数获得较稳健的增强效果"},
+  {fn:"transform.AugMix()",cat:"transform",sig:"transform.AugMix(severity=3, mixture_width=3)",desc:"混合多条随机增强链路以提升鲁棒性",scene:"提升模型对分布偏移、噪声和腐蚀的稳定性"},
+  // 数据加载
+  {fn:"Dataset",cat:"data",sig:"from torch.utils.data import Dataset\nclass MyDataset(Dataset): ...",desc:"所有 map-style 数据集的抽象基类，通常实现 __len__ 和 __getitem__",scene:"自定义图片、文本、表格等样本读取逻辑"},
+  {fn:"Dataset.__len__()",cat:"data",sig:"def __len__(self): return len(self.samples)",desc:"返回数据集样本数量",scene:"让 DataLoader 知道 epoch 大小，也用于 random_split 等工具"},
+  {fn:"Dataset.__getitem__()",cat:"data",sig:"def __getitem__(self, index): return x, y",desc:"按索引返回单个样本，通常包含读取、转换、返回标签",scene:"训练时 DataLoader 会反复调用它组成 batch"},
+  {fn:"IterableDataset",cat:"data",sig:"from torch.utils.data import IterableDataset\nclass StreamDataset(IterableDataset): ...",desc:"流式数据集基类，实现 __iter__ 而不是按索引随机访问",scene:"日志流、超大文件、在线采样等无法预先确定长度的数据"},
+  {fn:"IterableDataset.__iter__()",cat:"data",sig:"def __iter__(self): yield sample",desc:"返回样本迭代器，逐个产生训练样本",scene:"边读边训，适合数据不能一次性列出索引的场景"},
+  {fn:"DataLoader",cat:"data",sig:"DataLoader(dataset, batch_size=1, shuffle=False, num_workers=0, collate_fn=None, pin_memory=False)",desc:"把 Dataset 包装成可迭代的 batch，负责采样、并行读取、拼接和内存搬运",scene:"标准训练循环：for x, y in loader: ..."},
+  {fn:"DataLoader.batch_size",cat:"data",sig:"DataLoader(dataset, batch_size=32)",desc:"每个 batch 包含的样本数",scene:"控制显存占用、训练稳定性和吞吐量"},
+  {fn:"DataLoader.shuffle",cat:"data",sig:"DataLoader(dataset, shuffle=True)",desc:"每个 epoch 打乱样本顺序",scene:"训练集通常开启，验证/测试集通常关闭"},
+  {fn:"DataLoader.num_workers",cat:"data",sig:"DataLoader(dataset, num_workers=4)",desc:"使用多个子进程并行加载数据",scene:"图片解码、数据增强较慢时提高 GPU 利用率"},
+  {fn:"DataLoader.collate_fn",cat:"data",sig:"DataLoader(dataset, collate_fn=my_collate)",desc:"自定义如何把多个样本合并成一个 batch",scene:"变长序列 padding、目标检测中不同数量 bbox 的拼接"},
+  {fn:"DataLoader.pin_memory",cat:"data",sig:"DataLoader(dataset, pin_memory=True)",desc:"将 CPU batch 放到页锁定内存，便于异步拷贝到 GPU",scene:"搭配 batch.to('cuda', non_blocking=True) 加速数据传输"},
+  {fn:"DataLoader.drop_last",cat:"data",sig:"DataLoader(dataset, drop_last=True)",desc:"丢弃最后一个不完整 batch",scene:"BatchNorm、分布式训练或固定 batch 形状需求"},
+  {fn:"DataLoader.persistent_workers",cat:"data",sig:"DataLoader(dataset, num_workers=4, persistent_workers=True)",desc:"epoch 结束后保留 worker 进程，减少重复启动开销",scene:"多轮训练且数据加载初始化成本较高时"},
+  {fn:"TensorDataset",cat:"data",sig:"TensorDataset(*tensors)",desc:"把多个第一维长度相同的张量包装成 Dataset",scene:"已有特征张量和标签张量时快速构造数据集"},
+  {fn:"random_split()",cat:"data",sig:"random_split(dataset, lengths, generator=None)",desc:"将一个数据集随机拆成多个 Subset",scene:"训练/验证集划分，如 80% train、20% val"},
+  {fn:"Subset",cat:"data",sig:"Subset(dataset, indices)",desc:"按给定索引引用原始数据集的一部分",scene:"K 折交叉验证、只训练指定样本子集"},
+  {fn:"ConcatDataset",cat:"data",sig:"ConcatDataset(datasets)",desc:"把多个 map-style 数据集首尾拼接成一个大数据集",scene:"合并多个目录、多个数据来源或多任务样本"},
+  {fn:"ChainDataset",cat:"data",sig:"ChainDataset(datasets)",desc:"按顺序链式迭代多个 IterableDataset",scene:"合并多个流式数据源，避免提前加载全部数据"},
+  {fn:"Sampler",cat:"data",sig:"class MySampler(Sampler):\n    def __iter__(self): ...",desc:"定义样本索引的产生顺序",scene:"自定义采样策略，如类别均衡、难例挖掘、按长度分桶"},
+  {fn:"SequentialSampler",cat:"data",sig:"SequentialSampler(data_source)",desc:"按 0 到 N-1 的顺序采样索引",scene:"验证、测试、需要稳定顺序的推理阶段"},
+  {fn:"RandomSampler",cat:"data",sig:"RandomSampler(data_source, replacement=False, num_samples=None)",desc:"随机采样索引，可选择有放回采样",scene:"训练时打乱样本，或从大数据集中随机抽样"},
+  {fn:"SubsetRandomSampler",cat:"data",sig:"SubsetRandomSampler(indices)",desc:"只从给定索引集合中随机采样",scene:"固定训练/验证划分后，对训练子集随机打乱"},
+  {fn:"WeightedRandomSampler",cat:"data",sig:"WeightedRandomSampler(weights, num_samples, replacement=True)",desc:"按样本权重随机采样",scene:"类别不平衡时提高少数类样本出现概率"},
+  {fn:"BatchSampler",cat:"data",sig:"BatchSampler(sampler, batch_size, drop_last)",desc:"把普通 sampler 产生的索引打包成 batch 索引列表",scene:"需要完全控制 batch 组成规则时"},
+  {fn:"DistributedSampler",cat:"data",sig:"DistributedSampler(dataset, num_replicas=None, rank=None, shuffle=True)",desc:"分布式训练中为每个进程划分不同样本子集",scene:"DDP 训练时避免不同 GPU 重复处理同一批样本"},
+  {fn:"DistributedSampler.set_epoch()",cat:"data",sig:"sampler.set_epoch(epoch)",desc:"设置当前 epoch，让分布式 shuffle 每轮都不同",scene:"DDP 训练循环每个 epoch 开头调用"},
+  {fn:"default_collate()",cat:"data",sig:"default_collate(batch)",desc:"PyTorch 默认 batch 拼接逻辑，递归处理 tensor、dict、list、tuple 等",scene:"写自定义 collate_fn 时可复用默认规则"},
+  {fn:"get_worker_info()",cat:"data",sig:"info = torch.utils.data.get_worker_info()",desc:"在 Dataset 内获取当前 worker 的 id、数量和数据集副本",scene:"IterableDataset 多进程加载时给每个 worker 切分不同数据片段"},
 ];
  
 let activeFilter = "all", searchVal = "";
@@ -571,7 +638,7 @@ allBtn.className = "chip active"; allBtn.dataset.key = "all";
 allBtn.innerHTML = svgIcon("list") + " 全部";
 chipsEl.appendChild(allBtn);
  
-const CAT_ICONS = { create:"plus", shape:"resize", math:"math", stat:"chart", index:"cut", type:"transfer", linalg:"calc", grad:"grad", random:"dice" };
+const CAT_ICONS = { create:"plus", shape:"resize", math:"math", stat:"chart", index:"cut", type:"transfer", linalg:"calc", grad:"grad", random:"dice", data:"data", transform:"transform" };
  
 Object.entries(CATS).forEach(([key, c]) => {
   const btn = document.createElement("button");
