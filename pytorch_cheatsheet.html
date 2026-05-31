@@ -39,6 +39,7 @@
     .b-linalg{background:#2e0a1e!important;color:#f59bbf!important}
     .b-grad{background:#252520!important;color:#b0b0a8!important}
     .b-random{background:#2e0a0a!important;color:#f58080!important}
+    .b-nn{background:#2b1238!important;color:#d9a6f2!important}
     .b-data{background:#062b2f!important;color:#61d9e6!important}
     .b-transform{background:#291740!important;color:#d7adff!important}
     mark{background:#5a4a00!important;color:#ffd966!important}
@@ -251,6 +252,7 @@
   .b-linalg { background: #FBEAF0; color: #72243E; }
   .b-grad   { background: #F1EFE8; color: #444441; }
   .b-random { background: #FCEBEB; color: #791F1F; }
+  .b-nn     { background: #F3E8FA; color: #5B2375; }
   .b-data   { background: #DFF5F7; color: #07515B; }
   .b-transform { background: #F1E6FF; color: #573184; }
   .desc-text {
@@ -293,7 +295,7 @@
 <div class="page">
   <header>
     <h1>PyTorch 常用方法速查表</h1>
-    <p class="subtitle">254 个方法 · 11 大分类 · 支持搜索与筛选</p>
+    <p class="subtitle">324 个方法 · 12 大分类 · 支持搜索与筛选</p>
   </header>
  
   <div class="toolbar">
@@ -338,6 +340,7 @@ const ICON = {
   calc:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="12" x2="8" y2="12"/><line x1="12" y1="12" x2="12" y2="12"/><line x1="16" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="12" y1="16" x2="12" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>`,
   grad:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>`,
   dice:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="4"/><circle cx="8" cy="8" r="1" fill="currentColor"/><circle cx="16" cy="8" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="8" cy="16" r="1" fill="currentColor"/><circle cx="16" cy="16" r="1" fill="currentColor"/></svg>`,
+  layers:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 7 12 12 2 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></svg>`,
   data:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>`,
   transform:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9H6"/><path d="M20 9h-2"/><path d="m17.8 6.2 1.4-1.4"/><path d="m10.8 13.2-1.4 1.4"/><path d="m10.8 4.8-1.4-1.4"/><path d="m17.8 11.8 1.4 1.4"/><path d="M4 20l6-6"/><path d="m14 18 6-6"/><path d="M4 14h6v6"/></svg>`,
   bulb:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>`,
@@ -354,6 +357,7 @@ const CATS = {
   linalg: { label:"线性代数",  icon:"calc",     cls:"b-linalg", dot:"#D4537E" },
   grad:   { label:"自动微分",  icon:"grad",     cls:"b-grad",   dot:"#888780" },
   random: { label:"随机采样",  icon:"dice",     cls:"b-random", dot:"#E24B4A" },
+  nn:     { label:"神经网络",  icon:"layers",   cls:"b-nn",     dot:"#9B4CC2" },
   data:   { label:"数据加载",  icon:"data",     cls:"b-data",   dot:"#18A6B6" },
   transform: { label:"图像变换", icon:"transform", cls:"b-transform", dot:"#8A57C8" },
 };
@@ -565,6 +569,77 @@ const DATA = [
   {fn:"torch.Generator()",cat:"random",sig:"g = torch.Generator(device='cpu')\ng.manual_seed(seed)",desc:"创建独立的随机数生成器对象",scene:"不同线程 / DataLoader worker 使用独立 RNG"},
   {fn:"torch.get_rng_state()",cat:"random",sig:"torch.get_rng_state()",desc:"保存当前随机数状态（返回 ByteTensor）",scene:"检查点恢复时保存 RNG 状态"},
   {fn:"torch.set_rng_state()",cat:"random",sig:"torch.set_rng_state(new_state)",desc:"恢复保存的随机数状态",scene:"从检查点精确恢复训练随机性"},
+  // 神经网络
+  {fn:"nn.Module",cat:"nn",sig:"class Net(nn.Module):\n    def forward(self, x): ...",desc:"所有神经网络模块的基类，负责参数、子模块、训练/推理状态管理",scene:"自定义模型时继承它，并在 __init__ 里注册层"},
+  {fn:"Module.forward()",cat:"nn",sig:"def forward(self, x): return out",desc:"定义模块的前向计算逻辑",scene:"不要手动调用 forward，使用 model(x) 触发 hooks 和内部流程"},
+  {fn:"Module.parameters()",cat:"nn",sig:"model.parameters(recurse=True)",desc:"迭代返回模型中可训练 Parameter",scene:"传给优化器：optim.Adam(model.parameters(), lr=...)"},
+  {fn:"Module.named_parameters()",cat:"nn",sig:"model.named_parameters(prefix='', recurse=True)",desc:"返回参数名和参数张量的迭代器",scene:"分组设置学习率、打印或冻结指定层"},
+  {fn:"Module.buffers()",cat:"nn",sig:"model.buffers(recurse=True)",desc:"返回注册的非参数状态，如 BatchNorm running_mean",scene:"检查随模型保存但不参与梯度更新的张量"},
+  {fn:"Module.children()",cat:"nn",sig:"model.children()",desc:"迭代直接子模块，不递归展开",scene:"截断模型前几层或查看顶层结构"},
+  {fn:"Module.modules()",cat:"nn",sig:"model.modules()",desc:"递归迭代模型自身和所有子模块",scene:"批量初始化 Conv / Linear / BatchNorm 层"},
+  {fn:"Module.train()",cat:"nn",sig:"model.train(mode=True)",desc:"切换到训练模式，影响 Dropout、BatchNorm 等模块",scene:"训练循环开始前调用 model.train()"},
+  {fn:"Module.eval()",cat:"nn",sig:"model.eval()",desc:"切换到评估模式，等价于 model.train(False)",scene:"验证和推理前调用，通常搭配 torch.no_grad()"},
+  {fn:"Module.to()",cat:"nn",sig:"model.to(device=None, dtype=None)",desc:"移动模型参数和 buffer 到指定设备或 dtype",scene:"GPU 训练：model.to('cuda')"},
+  {fn:"Module.state_dict()",cat:"nn",sig:"model.state_dict()",desc:"返回模型参数和 buffer 的字典",scene:"保存 checkpoint：torch.save(model.state_dict(), path)"},
+  {fn:"Module.load_state_dict()",cat:"nn",sig:"model.load_state_dict(state_dict, strict=True)",desc:"从 state_dict 恢复模型权重",scene:"加载预训练模型或恢复训练"},
+  {fn:"Module.requires_grad_()",cat:"nn",sig:"model.requires_grad_(requires_grad=False)",desc:"原地设置整个模块所有参数是否需要梯度",scene:"冻结 backbone 或只训练分类头"},
+  {fn:"nn.Parameter",cat:"nn",sig:"self.weight = nn.Parameter(torch.randn(...))",desc:"注册为模块参数的 Tensor 包装类",scene:"自定义层中声明可训练权重"},
+  {fn:"nn.Sequential",cat:"nn",sig:"nn.Sequential(nn.Linear(10, 32), nn.ReLU(), nn.Linear(32, 1))",desc:"按顺序串联多个模块",scene:"简单前馈网络、分类头、特征投影层"},
+  {fn:"nn.ModuleList",cat:"nn",sig:"self.layers = nn.ModuleList([nn.Linear(d, d) for _ in range(n)])",desc:"保存子模块列表，能被 PyTorch 正确注册",scene:"需要在 forward 中用循环或条件动态调用多层"},
+  {fn:"nn.ModuleDict",cat:"nn",sig:"self.blocks = nn.ModuleDict({'a': block_a, 'b': block_b})",desc:"用字典形式保存并注册子模块",scene:"多分支模型、按任务名选择不同 head"},
+  {fn:"nn.Linear",cat:"nn",sig:"nn.Linear(in_features, out_features, bias=True)",desc:"全连接线性层 y = xA^T + b",scene:"MLP、分类器 head、特征维度投影"},
+  {fn:"nn.Bilinear",cat:"nn",sig:"nn.Bilinear(in1_features, in2_features, out_features)",desc:"对两个输入做双线性变换",scene:"双塔模型特征交互、关系建模"},
+  {fn:"nn.Embedding",cat:"nn",sig:"nn.Embedding(num_embeddings, embedding_dim, padding_idx=None)",desc:"将整数 ID 映射为可训练向量",scene:"NLP token、类别特征、推荐系统 ID 表征"},
+  {fn:"nn.Flatten",cat:"nn",sig:"nn.Flatten(start_dim=1, end_dim=-1)",desc:"把指定维度范围展平成一维",scene:"CNN 特征进入 Linear 前处理"},
+  {fn:"nn.Unflatten",cat:"nn",sig:"nn.Unflatten(dim, unflattened_size)",desc:"把某个维度拆回多维形状",scene:"生成模型中从向量恢复到特征图形状"},
+  {fn:"nn.Conv1d",cat:"nn",sig:"nn.Conv1d(in_channels, out_channels, kernel_size, stride=1, padding=0)",desc:"一维卷积层",scene:"时间序列、音频、文本卷积特征提取"},
+  {fn:"nn.Conv2d",cat:"nn",sig:"nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0)",desc:"二维卷积层",scene:"图像分类、检测、分割中的基础特征提取"},
+  {fn:"nn.Conv3d",cat:"nn",sig:"nn.Conv3d(in_channels, out_channels, kernel_size, stride=1, padding=0)",desc:"三维卷积层",scene:"视频、医学影像、体素数据处理"},
+  {fn:"nn.ConvTranspose2d",cat:"nn",sig:"nn.ConvTranspose2d(in_channels, out_channels, kernel_size, stride=1, padding=0)",desc:"二维转置卷积，常用于上采样",scene:"生成器、分割 decoder、超分辨率网络"},
+  {fn:"nn.MaxPool2d",cat:"nn",sig:"nn.MaxPool2d(kernel_size, stride=None, padding=0)",desc:"二维最大池化",scene:"降低空间分辨率，保留局部强响应"},
+  {fn:"nn.AvgPool2d",cat:"nn",sig:"nn.AvgPool2d(kernel_size, stride=None, padding=0)",desc:"二维平均池化",scene:"平滑下采样、传统 CNN 中间层"},
+  {fn:"nn.AdaptiveAvgPool2d",cat:"nn",sig:"nn.AdaptiveAvgPool2d(output_size)",desc:"自适应平均池化到指定输出尺寸",scene:"将任意大小特征图压成固定大小，如全局平均池化到 (1,1)"},
+  {fn:"nn.BatchNorm1d",cat:"nn",sig:"nn.BatchNorm1d(num_features)",desc:"对 2D/3D 输入做批归一化",scene:"MLP 或序列特征中稳定训练"},
+  {fn:"nn.BatchNorm2d",cat:"nn",sig:"nn.BatchNorm2d(num_features)",desc:"对 NCHW 图像特征按通道做批归一化",scene:"CNN 中最常见的归一化层"},
+  {fn:"nn.LayerNorm",cat:"nn",sig:"nn.LayerNorm(normalized_shape)",desc:"对每个样本的最后若干维做归一化",scene:"Transformer、RNN、batch 很小时的稳定训练"},
+  {fn:"nn.GroupNorm",cat:"nn",sig:"nn.GroupNorm(num_groups, num_channels)",desc:"把通道分组后做归一化",scene:"小 batch 图像模型，替代 BatchNorm"},
+  {fn:"nn.Dropout",cat:"nn",sig:"nn.Dropout(p=0.5)",desc:"训练时随机置零部分元素以减少过拟合",scene:"MLP、Transformer、分类头中的正则化"},
+  {fn:"nn.Dropout2d",cat:"nn",sig:"nn.Dropout2d(p=0.5)",desc:"按通道随机置零二维特征图",scene:"CNN 特征图正则化"},
+  {fn:"nn.ReLU",cat:"nn",sig:"nn.ReLU(inplace=False)",desc:"逐元素 max(0, x) 激活函数",scene:"CNN / MLP 中最常用非线性"},
+  {fn:"nn.LeakyReLU",cat:"nn",sig:"nn.LeakyReLU(negative_slope=0.01)",desc:"负半轴保留小斜率的 ReLU",scene:"缓解 dying ReLU，GAN 中常见"},
+  {fn:"nn.GELU",cat:"nn",sig:"nn.GELU(approximate='none')",desc:"平滑激活函数",scene:"Transformer、BERT、ViT 等模型常用"},
+  {fn:"nn.SiLU",cat:"nn",sig:"nn.SiLU(inplace=False)",desc:"Sigmoid Linear Unit，也叫 Swish",scene:"EfficientNet、YOLO 等现代网络常用激活"},
+  {fn:"nn.Sigmoid",cat:"nn",sig:"nn.Sigmoid()",desc:"将输入压缩到 (0,1)",scene:"二分类概率或门控值输出"},
+  {fn:"nn.Softmax",cat:"nn",sig:"nn.Softmax(dim)",desc:"沿指定维度归一化为概率分布",scene:"分类概率、注意力权重；训练交叉熵通常直接传 logits"},
+  {fn:"F.relu()",cat:"nn",sig:"torch.nn.functional.relu(input, inplace=False)",desc:"函数式 ReLU，不持有参数",scene:"forward 中临时使用激活函数，常写作 import torch.nn.functional as F"},
+  {fn:"F.softmax()",cat:"nn",sig:"torch.nn.functional.softmax(input, dim)",desc:"函数式 softmax，沿指定维度归一化",scene:"推理时把 logits 转为概率；训练 CrossEntropyLoss 前通常不用"},
+  {fn:"F.one_hot()",cat:"nn",sig:"torch.nn.functional.one_hot(tensor, num_classes=-1)",desc:"把类别索引转换为 one-hot 编码",scene:"标签平滑、自定义损失、分类可视化"},
+  {fn:"nn.RNN",cat:"nn",sig:"nn.RNN(input_size, hidden_size, num_layers=1, batch_first=False)",desc:"基础循环神经网络层",scene:"简单序列建模和教学示例"},
+  {fn:"nn.LSTM",cat:"nn",sig:"nn.LSTM(input_size, hidden_size, num_layers=1, batch_first=False)",desc:"长短期记忆网络，返回 output 和 (h_n, c_n)",scene:"时间序列、语音、文本序列任务"},
+  {fn:"nn.GRU",cat:"nn",sig:"nn.GRU(input_size, hidden_size, num_layers=1, batch_first=False)",desc:"门控循环单元，结构比 LSTM 更轻",scene:"中小型序列任务、实时推理场景"},
+  {fn:"nn.Transformer",cat:"nn",sig:"nn.Transformer(d_model=512, nhead=8, num_encoder_layers=6)",desc:"完整 Transformer 编码器-解码器模块",scene:"机器翻译、序列到序列建模原型"},
+  {fn:"nn.TransformerEncoder",cat:"nn",sig:"nn.TransformerEncoder(encoder_layer, num_layers)",desc:"堆叠多个 TransformerEncoderLayer",scene:"文本分类、ViT、只需要 encoder 的模型"},
+  {fn:"nn.TransformerEncoderLayer",cat:"nn",sig:"nn.TransformerEncoderLayer(d_model, nhead, dim_feedforward=2048)",desc:"单个 Transformer encoder block",scene:"搭建自定义 Transformer 编码器"},
+  {fn:"nn.MultiheadAttention",cat:"nn",sig:"nn.MultiheadAttention(embed_dim, num_heads, dropout=0.0, batch_first=False)",desc:"多头注意力模块",scene:"自定义 Transformer、跨注意力、序列交互建模"},
+  {fn:"nn.CrossEntropyLoss",cat:"nn",sig:"nn.CrossEntropyLoss(weight=None, ignore_index=-100)",desc:"多分类交叉熵，内部包含 LogSoftmax + NLLLoss",scene:"单标签分类，输入 logits，标签为类别索引"},
+  {fn:"nn.BCEWithLogitsLoss",cat:"nn",sig:"nn.BCEWithLogitsLoss(pos_weight=None)",desc:"二分类 / 多标签损失，内部包含 sigmoid，数值更稳定",scene:"多标签分类、二分类 logits 训练"},
+  {fn:"nn.MSELoss",cat:"nn",sig:"nn.MSELoss(reduction='mean')",desc:"均方误差损失",scene:"回归、重建误差、蒸馏中的特征匹配"},
+  {fn:"nn.L1Loss",cat:"nn",sig:"nn.L1Loss(reduction='mean')",desc:"平均绝对误差损失",scene:"鲁棒回归、图像重建、稀疏约束"},
+  {fn:"nn.SmoothL1Loss",cat:"nn",sig:"nn.SmoothL1Loss(beta=1.0)",desc:"L1 和 L2 的平滑折中",scene:"目标检测 bbox 回归、异常值更稳定的回归"},
+  {fn:"nn.KLDivLoss",cat:"nn",sig:"nn.KLDivLoss(reduction='batchmean')",desc:"KL 散度损失，通常输入 log-probability",scene:"知识蒸馏、分布匹配、变分模型"},
+  {fn:"nn.init.xavier_uniform_()",cat:"nn",sig:"nn.init.xavier_uniform_(tensor, gain=1.0)",desc:"Xavier/Glorot 均匀初始化",scene:"tanh/sigmoid 或普通全连接层初始化"},
+  {fn:"nn.init.kaiming_normal_()",cat:"nn",sig:"nn.init.kaiming_normal_(tensor, mode='fan_in', nonlinearity='leaky_relu')",desc:"Kaiming/He 正态初始化",scene:"ReLU 系列激活的 Conv / Linear 权重初始化"},
+  {fn:"nn.init.constant_()",cat:"nn",sig:"nn.init.constant_(tensor, val)",desc:"将张量原地初始化为常数",scene:"初始化 bias、BatchNorm scale/bias"},
+  {fn:"clip_grad_norm_()",cat:"nn",sig:"torch.nn.utils.clip_grad_norm_(parameters, max_norm)",desc:"按总范数裁剪梯度",scene:"RNN、Transformer 训练中缓解梯度爆炸"},
+  {fn:"clip_grad_value_()",cat:"nn",sig:"torch.nn.utils.clip_grad_value_(parameters, clip_value)",desc:"按元素值范围裁剪梯度",scene:"需要简单限制梯度幅度时"},
+  {fn:"optim.SGD",cat:"nn",sig:"torch.optim.SGD(params, lr, momentum=0, weight_decay=0)",desc:"随机梯度下降优化器，可加 momentum",scene:"经典 CNN 训练、强基线实验"},
+  {fn:"optim.Adam",cat:"nn",sig:"torch.optim.Adam(params, lr=0.001, betas=(0.9, 0.999))",desc:"自适应矩估计优化器",scene:"大多数任务的易用默认选择"},
+  {fn:"optim.AdamW",cat:"nn",sig:"torch.optim.AdamW(params, lr=0.001, weight_decay=0.01)",desc:"Adam 的解耦权重衰减版本",scene:"Transformer、ViT、现代深度学习训练常用"},
+  {fn:"optimizer.zero_grad()",cat:"nn",sig:"optimizer.zero_grad(set_to_none=True)",desc:"清空上一轮累积梯度",scene:"每次 loss.backward() 前调用，避免梯度跨 batch 累积"},
+  {fn:"optimizer.step()",cat:"nn",sig:"optimizer.step(closure=None)",desc:"根据当前梯度更新参数",scene:"标准训练循环中 loss.backward() 之后调用"},
+  {fn:"lr_scheduler.StepLR",cat:"nn",sig:"StepLR(optimizer, step_size, gamma=0.1)",desc:"每隔固定 epoch 将学习率乘以 gamma",scene:"简单分段衰减学习率策略"},
+  {fn:"lr_scheduler.CosineAnnealingLR",cat:"nn",sig:"CosineAnnealingLR(optimizer, T_max, eta_min=0)",desc:"余弦退火学习率调度",scene:"图像模型、Transformer 常见平滑降学习率"},
+  {fn:"lr_scheduler.ReduceLROnPlateau",cat:"nn",sig:"ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=10)",desc:"监控指标无改善时降低学习率",scene:"验证 loss 停滞后自动降学习率"},
   // 图像变换
   {fn:"transform.Compose()",cat:"transform",sig:"import torchvision.transforms as transform\ntransform.Compose([t1, t2, ...])",desc:"按顺序组合多个图像或张量变换",scene:"把 Resize、ToTensor、Normalize 串成一个预处理流水线"},
   {fn:"transform.ToTensor()",cat:"transform",sig:"transform.ToTensor()",desc:"将 PIL Image 或 ndarray 转为 FloatTensor，并把像素缩放到 [0,1]",scene:"传统 torchvision 图像分类输入预处理"},
@@ -638,7 +713,7 @@ allBtn.className = "chip active"; allBtn.dataset.key = "all";
 allBtn.innerHTML = svgIcon("list") + " 全部";
 chipsEl.appendChild(allBtn);
  
-const CAT_ICONS = { create:"plus", shape:"resize", math:"math", stat:"chart", index:"cut", type:"transfer", linalg:"calc", grad:"grad", random:"dice", data:"data", transform:"transform" };
+const CAT_ICONS = { create:"plus", shape:"resize", math:"math", stat:"chart", index:"cut", type:"transfer", linalg:"calc", grad:"grad", random:"dice", nn:"layers", data:"data", transform:"transform" };
  
 Object.entries(CATS).forEach(([key, c]) => {
   const btn = document.createElement("button");
