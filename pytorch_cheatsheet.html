@@ -293,6 +293,36 @@
     col.c-desc{ width: 70%; }
     .hide-mobile { display: none; }
   }
+
+  /* ── 模式切换 Tab ── */
+.mode-tabs{display:flex;background:var(--bg-secondary);border:0.5px solid var(--border-md);border-radius:9px;padding:3px;gap:2px;margin-bottom:10px}
+.mode-tab{font-size:12px;font-weight:500;font-family:var(--sans);padding:5px 14px;border-radius:7px;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;transition:all .15s;white-space:nowrap}
+.mode-tab:hover{color:var(--text-primary)}
+.mode-tab.active{background:var(--text-primary);color:var(--bg);box-shadow:0 1px 4px rgba(0,0,0,.18)}
+
+/* ── 星标 ── */
+:root{--star:#D97706;--star-bg:#FEF3C7;--star-border:#FDE68A}
+@media(prefers-color-scheme:dark){:root{--star:#FBBF24;--star-bg:#1a1200;--star-border:#443308}}
+.fn-cell{display:flex;align-items:flex-start;gap:5px}
+.star-icon{color:var(--star);flex-shrink:0;line-height:1.5;font-size:11px}
+.chip.star-chip{border-color:var(--star-border);background:var(--star-bg);color:var(--star)}
+.chip.star-chip.active,.chip.star-chip:hover{background:var(--star);color:#fff;border-color:var(--star)}
+tr.is-starred{border-left:2px solid var(--star-border)}
+
+/* ── 复制按钮 ── */
+.sig-wrap{position:relative}
+.copy-btn{position:absolute;top:0;right:0;opacity:0;background:var(--bg);border:0.5px solid var(--border-md);border-radius:5px;padding:2px 7px;cursor:pointer;font-size:11px;color:var(--text-secondary);font-family:var(--sans);transition:opacity .15s;white-space:nowrap}
+.copy-btn:hover{color:#378ADD}
+tr.data-row:hover .copy-btn{opacity:1}
+
+/* ── Toast 提示 ── */
+.toast-box{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(14px);background:#1c1c1e;color:#f2f2f7;font-size:13px;padding:7px 18px;border-radius:20px;box-shadow:0 4px 16px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .2s;z-index:9999}
+.toast-box.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── 场景 Banner ── */
+.scene-info{display:none;font-size:12px;color:var(--text-secondary);padding:6px 12px;background:var(--bg-secondary);border:0.5px solid var(--border);border-radius:8px;margin-bottom:8px}
+.scene-info.visible{display:block}
+
 </style>
 </head>
 <body>
@@ -307,7 +337,12 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input type="text" id="search" placeholder="搜索方法名、描述或使用场景…" />
     </div>
-    <div class="chips" id="chips"></div>
+    <div class="mode-tabs">
+  <button class="mode-tab active" data-mode="cat">按分类</button>
+  <button class="mode-tab" data-mode="scene">按场景</button>
+</div>
+<div class="chips" id="chips"></div>
+<div class="scene-info" id="sceneInfo"></div>
   </div>
  
   <div class="meta">
@@ -330,7 +365,7 @@
     </table>
   </div>
 </div>
- 
+<div class="toast-box" id="toast">✓ 已复制</div>
 <script>
 const ICON = {
   search:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>`,
@@ -369,7 +404,90 @@ const CATS = {
   train:  { label:"训练工具",  icon:"train",    cls:"b-train",  dot:"#D79816" },
   deploy: { label:"部署调试",  icon:"deploy",   cls:"b-deploy", dot:"#18A69B" },
 };
- 
+// ── 星标函数集合 ─────────────────────────────────
+const STARRED = new Set([
+  // 创建
+  "torch.tensor()","torch.zeros()","torch.ones()","torch.arange()",
+  "torch.linspace()","torch.eye()","torch.from_numpy()",
+  "torch.zeros_like()","torch.ones_like()",
+  // 形状
+  ".view()",".reshape()",".squeeze()",".unsqueeze()",".permute()",
+  ".transpose()","torch.cat()","torch.stack()",".flatten()",".expand()",
+  // 数学
+  ".add() / +",".mul() / *",".sub() / -","torch.matmul()",".sigmoid()",
+  ".exp()",".log()",".clamp()","F.relu()","torch.einsum()",".abs()",
+  ".sqrt()",".pow() / **","torch.nan_to_num()","torch.isfinite() / isnan() / isinf()",
+  // 统计
+  ".sum()",".mean()",".max()",".min()",".argmax()",".std()",
+  "torch.topk()","torch.sort() / argsort()",
+  // 索引
+  "t[i, j, ...]","torch.gather()","torch.where()",
+  ".masked_fill()","torch.index_select()",".nonzero()",
+  // 类型
+  ".to()",".float()",".long()",".numpy()",".item()",
+  ".detach()",".clone()",".shape .size()",".dtype .device .layout",".bool()",
+  // 线性代数
+  "torch.mm()","torch.bmm()","torch.linalg.svd()","torch.dot()",
+  // 自动微分
+  ".requires_grad_()",".backward()",".grad","torch.no_grad()",
+  "torch.inference_mode()",".zero_()","torch.autograd.grad()",
+  "torch.set_grad_enabled()","torch.autograd.detect_anomaly()",
+  // 随机
+  "torch.rand()","torch.randn()","torch.randint()","torch.randperm()",
+  "torch.manual_seed()","distributions.Normal","distributions.Categorical",
+  // 神经网络 - 基础
+  "nn.Module","Module.forward()","Module.parameters()","Module.train()",
+  "Module.eval()","Module.to()","Module.state_dict()","Module.load_state_dict()",
+  "Module.requires_grad_()","nn.Sequential","nn.Linear","nn.Conv2d",
+  "nn.Embedding","nn.BatchNorm2d","nn.LayerNorm","nn.Dropout",
+  "nn.ReLU","nn.GELU","nn.MultiheadAttention","nn.LSTM","nn.GRU",
+  // 神经网络 - 损失
+  "nn.CrossEntropyLoss","nn.BCEWithLogitsLoss","nn.MSELoss","nn.L1Loss","nn.KLDivLoss",
+  // 神经网络 - 优化
+  "optim.Adam","optim.AdamW","optim.SGD",
+  "optimizer.zero_grad()","optimizer.step()",
+  "lr_scheduler.CosineAnnealingLR","lr_scheduler.ReduceLROnPlateau","lr_scheduler.OneCycleLR",
+  // 函数式
+  "F.relu()","F.softmax()","F.interpolate()","F.one_hot()",
+  "F.cross_entropy()","F.binary_cross_entropy_with_logits()",
+  // 初始化 & 工具
+  "nn.init.kaiming_normal_()","nn.init.xavier_uniform_()","clip_grad_norm_()",
+  // 数据
+  "Dataset","Dataset.__len__()","Dataset.__getitem__()","DataLoader",
+  "TensorDataset","random_split()","WeightedRandomSampler",
+  "torch.save()","torch.load()","torchvision.datasets.ImageFolder",
+  // 图像变换
+  "transform.Compose()","transform.ToTensor()","transform.Normalize()",
+  "transform.Resize()","transform.RandomResizedCrop()","transform.RandomHorizontalFlip()",
+  "transform.ColorJitter()","transform.GaussianBlur()","transform.RandomErasing()",
+  // 训练 & 部署
+  "torch.compile()","torch.amp.autocast()","torch.amp.GradScaler",
+  "Module.register_forward_hook()","optimizer.state_dict()","optimizer.load_state_dict()",
+  "torch.cuda.is_available()","torch.cuda.empty_cache()","torch.cuda.synchronize()",
+  "torch.onnx.export()","torch.jit.trace()","torch.cuda.memory_allocated()",
+  "torch.profiler.profile()","torch.backends.cudnn.benchmark",
+]);
+
+// ── 场景过滤器 ─────────────────────────────────────
+const SCENES = {
+  quick:   {label:"⭐ 高频必会", desc:"约 90 个日常核心函数，快速定位最重要 API",
+             match:d=>STARRED.has(d.fn)},
+  pipeline:{label:"数据管道",   desc:"Dataset → DataLoader → Transforms 完整数据准备",
+             match:d=>["data","transform"].includes(d.cat)},
+  build:   {label:"构建模型",   desc:"nn.Module 架构、层、激活、归一化层定义",
+             match:d=>d.cat==="nn"&&!/clip_grad|optimizer|optim\.|lr_sched|zero_grad|\.step\b/.test(d.fn)},
+  train:   {label:"训练循环",   desc:"损失、优化器、调度器、梯度、混合精度",
+             match:d=>d.cat==="train"||d.cat==="grad"||(d.cat==="nn"&&/Loss|optimizer|optim\.|lr_sched|zero_grad|clip_grad|\.step\b/.test(d.fn+d.desc))},
+  infer:   {label:"推理 & 部署", desc:"导出、JIT、ONNX、no_grad、设备管理",
+             match:d=>d.cat==="deploy"||(d.cat==="grad"&&/no_grad|inference_mode/.test(d.fn))||(d.cat==="nn"&&/state_dict|load_state/.test(d.fn))},
+  debug:   {label:"调试诊断",   desc:"NaN/Inf 检测、梯度监控、显存分析、Profiling",
+             match:d=>/调试|定位|NaN|Inf|nan|inf|异常|梯度爆|梯度消|profile|hook|监控|显存|崩溃|报错/.test(d.scene+d.desc)||d.cat==="deploy"},
+  tensor:  {label:"张量操作",   desc:"创建、形状变换、数学运算、类型转换",
+             match:d=>["create","shape","math","type"].includes(d.cat)},
+  compute: {label:"数值计算",   desc:"线性代数、统计聚合、索引、随机采样",
+             match:d=>["linalg","stat","random","index"].includes(d.cat)},
+};
+
 const DATA = [
   // 创建
   {fn:"torch.tensor()",cat:"create",sig:"torch.tensor(data, dtype=None, device=None, requires_grad=False)",desc:"从 Python list / numpy array 直接创建张量",scene:"最常用的手动创建方式，调试时构造小数据"},
@@ -985,85 +1103,191 @@ const DATA = [
   {fn:"torch.get_num_threads()",cat:"deploy",sig:"torch.get_num_threads()",desc:"读取 CPU 计算线程数",scene:"记录运行环境、排查线程争用"},
 ];
  
-let activeFilter = "all", searchVal = "";
- 
-function svgIcon(name) { return ICON[name] || ""; }
- 
-const chipsEl = document.getElementById("chips");
+let activeFilter = "all";
+let searchVal    = "";
+let filterMode   = "cat";   // "cat" | "scene"
+let sceneFn      = null;    // 当前场景匹配函数
+
+function svgIcon(name){return ICON[name]||""}
+
+// ── 初始化分类 chips ──────────────────────────────
+const chipsEl  = document.getElementById("chips");
 const legendEl = document.getElementById("legend");
- 
-const allBtn = document.createElement("button");
-allBtn.className = "chip active"; allBtn.dataset.key = "all";
-allBtn.innerHTML = svgIcon("list") + " 全部";
+
+const CAT_ICONS={create:"plus",shape:"resize",math:"math",stat:"chart",
+  index:"cut",type:"transfer",linalg:"calc",grad:"grad",random:"dice",
+  nn:"layers",data:"data",transform:"transform",train:"train",deploy:"deploy"};
+
+// 全部按钮
+const allBtn=document.createElement("button");
+allBtn.className="chip active";allBtn.dataset.key="all";
+allBtn.innerHTML=svgIcon("list")+" 全部";
 chipsEl.appendChild(allBtn);
- 
-const CAT_ICONS = { create:"plus", shape:"resize", math:"math", stat:"chart", index:"cut", type:"transfer", linalg:"calc", grad:"grad", random:"dice", nn:"layers", data:"data", transform:"transform", train:"train", deploy:"deploy" };
- 
-Object.entries(CATS).forEach(([key, c]) => {
-  const btn = document.createElement("button");
-  btn.className = "chip"; btn.dataset.key = key;
-  btn.innerHTML = svgIcon(CAT_ICONS[key]) + " " + c.label;
+
+// ⭐ 星标按钮（分类模式里也放一个）
+const starBtn=document.createElement("button");
+starBtn.className="chip star-chip";starBtn.dataset.key="__star__";
+starBtn.innerHTML="⭐ 星标";
+chipsEl.appendChild(starBtn);
+
+Object.entries(CATS).forEach(([key,c])=>{
+  const btn=document.createElement("button");
+  btn.className="chip";btn.dataset.key=key;
+  btn.innerHTML=svgIcon(CAT_ICONS[key])+" "+c.label;
   chipsEl.appendChild(btn);
-  const dot = document.createElement("span");
-  dot.className = "legend-dot";
-  dot.innerHTML = `<span class="dot" style="background:${c.dot}"></span>${c.label}`;
+  const dot=document.createElement("span");
+  dot.className="legend-dot";
+  dot.innerHTML=`<span class="dot" style="background:${c.dot}"></span>${c.label}`;
   legendEl.appendChild(dot);
 });
- 
-chipsEl.addEventListener("click", e => {
-  const btn = e.target.closest(".chip");
-  if (!btn) return;
-  activeFilter = btn.dataset.key;
-  chipsEl.querySelectorAll(".chip").forEach(b => b.classList.toggle("active", b === btn));
+
+// ── 初始化场景 chips（隐藏，插在 chips 后面） ──────
+const sceneChipsEl=document.createElement("div");
+sceneChipsEl.className="chips";sceneChipsEl.id="sceneChips";
+sceneChipsEl.style.display="none";
+chipsEl.parentNode.insertBefore(sceneChipsEl,chipsEl.nextSibling);
+
+Object.entries(SCENES).forEach(([key,s])=>{
+  const btn=document.createElement("button");
+  btn.className="chip";btn.dataset.skey=key;
+  btn.textContent=s.label;
+  sceneChipsEl.appendChild(btn);
+});
+
+// ── 模式切换 ──────────────────────────────────────
+document.querySelectorAll(".mode-tab").forEach(tab=>{
+  tab.addEventListener("click",()=>{
+    document.querySelectorAll(".mode-tab").forEach(t=>t.classList.remove("active"));
+    tab.classList.add("active");
+    filterMode=tab.dataset.mode;
+    if(filterMode==="cat"){
+      chipsEl.style.display="";
+      sceneChipsEl.style.display="none";
+      sceneFn=null;
+      document.getElementById("sceneInfo").classList.remove("visible");
+    } else {
+      chipsEl.style.display="none";
+      sceneChipsEl.style.display="";
+    }
+    activeFilter="all";
+    chipsEl.querySelectorAll(".chip").forEach(b=>b.classList.remove("active"));
+    allBtn.classList.add("active");
+    sceneChipsEl.querySelectorAll(".chip").forEach(b=>b.classList.remove("active"));
+    render();
+  });
+});
+
+// ── 分类 chips 点击 ───────────────────────────────
+chipsEl.addEventListener("click",e=>{
+  const btn=e.target.closest(".chip");if(!btn)return;
+  activeFilter=btn.dataset.key;
+  chipsEl.querySelectorAll(".chip").forEach(b=>b.classList.toggle("active",b===btn));
   render();
 });
- 
-document.getElementById("search").addEventListener("input", e => {
-  searchVal = e.target.value; render();
+
+// ── 场景 chips 点击 ───────────────────────────────
+sceneChipsEl.addEventListener("click",e=>{
+  const btn=e.target.closest(".chip");if(!btn)return;
+  const skey=btn.dataset.skey;
+  sceneChipsEl.querySelectorAll(".chip").forEach(b=>b.classList.toggle("active",b===btn));
+  sceneFn=SCENES[skey].match;
+  const info=document.getElementById("sceneInfo");
+  info.textContent=SCENES[skey].label+" — "+SCENES[skey].desc;
+  info.classList.add("visible");
+  render();
 });
- 
-function hl(str, q) {
-  if (!q) return str;
-  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
-  return str.replace(re, '<mark>$1</mark>');
+
+// ── 搜索 ──────────────────────────────────────────
+document.getElementById("search").addEventListener("input",e=>{
+  searchVal=e.target.value;render();
+});
+
+// ── 高亮关键词 ────────────────────────────────────
+function hl(str,q){
+  if(!q)return str;
+  const re=new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")})`,"gi");
+  return str.replace(re,"<mark>$1</mark>");
 }
- 
-function render() {
-  const q = searchVal.toLowerCase().trim();
-  const rows = DATA.filter(d => {
-    const mc = activeFilter === "all" || d.cat === activeFilter;
-    const mq = !q || d.fn.toLowerCase().includes(q) || d.desc.toLowerCase().includes(q) || d.scene.toLowerCase().includes(q) || CATS[d.cat].label.includes(q);
-    return mc && mq;
+
+// ── 复制 & Toast ──────────────────────────────────
+function copyText(text){
+  navigator.clipboard.writeText(text).catch(()=>{
+    const ta=document.createElement("textarea");
+    ta.value=text;document.body.appendChild(ta);ta.select();
+    document.execCommand("copy");document.body.removeChild(ta);
   });
-  document.getElementById("count").textContent = `${rows.length} / ${DATA.length} 个方法`;
-  const tb = document.getElementById("tbody");
-  if (!rows.length) {
-    tb.innerHTML = `<tr><td colspan="4" class="empty">${svgIcon("sad")}<br>没有匹配的方法</td></tr>`;
+  const t=document.getElementById("toast");
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),1600);
+}
+
+// ── 渲染表格 ──────────────────────────────────────
+function render(){
+  const q=searchVal.toLowerCase().trim();
+
+  let rows=DATA.filter(d=>{
+    // 场景模式过滤
+    if(filterMode==="scene"&&sceneFn&&!sceneFn(d))return false;
+    // 分类模式过滤
+    if(filterMode==="cat"){
+      if(activeFilter==="__star__"&&!STARRED.has(d.fn))return false;
+      if(activeFilter!=="all"&&activeFilter!=="__star__"&&d.cat!==activeFilter)return false;
+    }
+    // 搜索过滤
+    if(q&&!d.fn.toLowerCase().includes(q)&&!d.desc.toLowerCase().includes(q)
+      &&!d.scene.toLowerCase().includes(q)&&!CATS[d.cat].label.includes(q))return false;
+    return true;
+  });
+
+  // 全部视图时星标优先
+  const grouped=(filterMode==="cat")&&(activeFilter==="all")&&!q;
+  if(grouped){
+    rows.sort((a,b)=>{
+      if(a.cat!==b.cat)return 0; // 保持原分类顺序
+      const sa=STARRED.has(a.fn)?0:1, sb=STARRED.has(b.fn)?0:1;
+      return sa-sb;
+    });
+  }
+
+  const starCount=rows.filter(d=>STARRED.has(d.fn)).length;
+  document.getElementById("count").textContent=
+    `${rows.length} / ${DATA.length} 个方法${starCount&&starCount<rows.length?" · ⭐ "+starCount:""}`;
+
+  const tb=document.getElementById("tbody");
+  if(!rows.length){
+    tb.innerHTML=`<tr><td colspan="4" class="empty">${svgIcon("sad")}<br>没有匹配的方法</td></tr>`;
     return;
   }
-  const grouped = activeFilter === "all" && !q;
-  let html = "", lastCat = null;
-  rows.forEach(d => {
-    if (grouped && d.cat !== lastCat) {
-      const c = CATS[d.cat];
-      html += `<tr class="group-hdr"><td colspan="4"><span>${svgIcon(CAT_ICONS[d.cat])} ${c.label}</span></td></tr>`;
-      lastCat = d.cat;
+
+  let html="", lastCat=null;
+  rows.forEach(d=>{
+    const isStar=STARRED.has(d.fn);
+    if(grouped&&d.cat!==lastCat){
+      const c=CATS[d.cat];
+      html+=`<tr class="group-hdr"><td colspan="4"><span>${svgIcon(CAT_ICONS[d.cat])} ${c.label}</span></td></tr>`;
+      lastCat=d.cat;
     }
-    const c = CATS[d.cat];
-    html += `<tr class="data-row">
-      <td><div class="fn-name">${hl(d.fn, searchVal)}</div></td>
+    const c=CATS[d.cat];
+    const starHtml=isStar?`<span class="star-icon" title="高频常用">★</span>`:"";
+    const sigEscaped=(d.sig||"").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    html+=`<tr class="data-row${isStar?" is-starred":""}">
+      <td><div class="fn-cell">${starHtml}<div class="fn-name">${hl(d.fn,searchVal)}</div></div></td>
       <td class="hide-mobile"><span class="badge ${c.cls}">${svgIcon(CAT_ICONS[d.cat])} ${c.label}</span></td>
-      <td class="hide-mobile"><div class="sig-text">${hl(d.sig, searchVal)}</div></td>
+      <td class="hide-mobile"><div class="sig-wrap">
+        <div class="sig-text">${hl(sigEscaped,searchVal)}</div>
+        <button class="copy-btn" onclick="copyText(${JSON.stringify(d.sig)})">复制</button>
+      </div></td>
       <td>
-        <div class="desc-text">${hl(d.desc, searchVal)}</div>
-        <div class="scene-text">${svgIcon("bulb")} ${hl(d.scene, searchVal)}</div>
+        <div class="desc-text">${hl(d.desc,searchVal)}</div>
+        <div class="scene-text">${svgIcon("bulb")} ${hl(d.scene,searchVal)}</div>
       </td>
     </tr>`;
   });
-  tb.innerHTML = html;
+  tb.innerHTML=html;
 }
 
-document.getElementById("subtitle").textContent = `${DATA.length} 个方法 · ${Object.keys(CATS).length} 大分类 · 支持搜索与筛选`;
+document.getElementById("subtitle").textContent=
+  `${DATA.length} 个方法 · ${Object.keys(CATS).length} 大分类 · ⭐ ${STARRED.size} 高频星标`;
 render();
 </script>
 </body>
